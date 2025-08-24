@@ -4,7 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import Dashboard from "./pages/Dashboard";
+import PrismaHome from "./pages/PrismaHome";
+import PrismaDashboard from "./pages/PrismaDashboard";
 import Leads from "./pages/Leads";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
@@ -20,27 +21,27 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={
-            <DashboardLayout>
-              <Dashboard />
+            <DashboardLayout title="Home">
+              <PrismaHome />
+            </DashboardLayout>
+          } />
+          <Route path="/dashboard" element={
+            <DashboardLayout title="Dashboard">
+              <PrismaDashboard />
             </DashboardLayout>
           } />
           <Route path="/leads" element={
-            <DashboardLayout>
+            <DashboardLayout title="Leads">
               <Leads />
             </DashboardLayout>
           } />
           <Route path="/reports" element={
-            <DashboardLayout>
+            <DashboardLayout title="Analytics">
               <Analytics />
             </DashboardLayout>
           } />
           <Route path="/settings" element={
-            <DashboardLayout>
-              <Settings />
-            </DashboardLayout>
-          } />
-          <Route path="/profile" element={
-            <DashboardLayout>
+            <DashboardLayout title="Configurações">
               <Settings />
             </DashboardLayout>
           } />

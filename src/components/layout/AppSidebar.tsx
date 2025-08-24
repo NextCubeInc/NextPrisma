@@ -96,12 +96,12 @@ export function AppSidebar() {
     <Sidebar className="border-r border-sidebar-border">
       <SidebarHeader className="border-b border-sidebar-border p-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-gradient-primary rounded-xl flex items-center justify-center shadow-glow">
             <Zap className="w-4 h-4 text-white" />
           </div>
           {!isCollapsed && (
             <div>
-              <h2 className="text-lg font-bold text-sidebar-foreground">SaaS Pro</h2>
+              <h2 className="text-lg font-bold text-sidebar-foreground">PrismaID</h2>
               <p className="text-xs text-sidebar-foreground/60">Dashboard</p>
             </div>
           )}

@@ -5,9 +5,10 @@ import { DashboardHeader } from "./DashboardHeader";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
+  title?: string;
 }
 
-export function DashboardLayout({ children }: DashboardLayoutProps) {
+export function DashboardLayout({ children, title }: DashboardLayoutProps) {
   // Set dark mode by default
   useEffect(() => {
     document.documentElement.classList.add('dark');
@@ -19,7 +20,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <AppSidebar />
         
         <div className="flex-1 flex flex-col">
-          <DashboardHeader />
+          <DashboardHeader title={title} />
           
           <main className="flex-1 p-6 overflow-auto">
             {children}
