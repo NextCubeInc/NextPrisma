@@ -10,6 +10,18 @@ import Leads from "./pages/Leads";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import Competitors from "./pages/Competitors";
+import Alerts from "./pages/Alerts";
+import LandingPages from "./pages/LandingPages";
+import Ads from "./pages/Ads";
+import StoreAnalytics from "./pages/StoreAnalytics";
+import Messages from "./pages/Messages";
+import Billing from "./pages/Billing";
+import Upgrade from "./pages/Upgrade";
+import Credits from "./pages/Credits";
+import Workspaces from "./pages/Workspaces";
+import Profile from "./pages/Profile";
+import Integrations from "./pages/Integrations";
 
 const queryClient = new QueryClient();
 
