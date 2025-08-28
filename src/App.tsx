@@ -22,6 +22,7 @@ import Credits from "./pages/Credits";
 import Workspaces from "./pages/Workspaces";
 import Profile from "./pages/Profile";
 import Integrations from "./pages/Integrations";
+import CreativeLibrary from "./pages/CreativeLibrary";
 
 const queryClient = new QueryClient();
 
@@ -115,6 +116,11 @@ const App = () => (
           <Route path="/integrations" element={
             <DashboardLayout title="Integrações">
               <Integrations />
+            </DashboardLayout>
+          } />
+          <Route path="/creative-library" element={
+            <DashboardLayout title="Biblioteca de Criativos">
+              <CreativeLibrary />
             </DashboardLayout>
           } />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -18,7 +18,8 @@ import {
   MessageSquare,
   Lightbulb,
   Monitor,
-  ShoppingBag
+  ShoppingBag,
+  Image
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -65,6 +66,7 @@ const getMenuItems = (workspaceType: "general" | "store") => {
         { title: "Leads", url: "/leads", icon: Target },
         { title: "Landing Pages", url: "/landing-pages", icon: Globe },
         { title: "Ads", url: "/ads", icon: Megaphone },
+        { title: "Criativos", url: "/creative-library", icon: Image },
         { title: "Analytics", url: "/analytics", icon: TrendingUp },
         { title: "Mensagens", url: "/messages", icon: MessageSquare },
       ];
