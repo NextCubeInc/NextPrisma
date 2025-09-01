@@ -52,7 +52,7 @@ const landingPagesData = [
     leads: 249,
     conversionRate: 4.6,
     abtesting: true,
-    lastUpdated: "2h ago",
+    dwelltime: "2h30m02s",
     template: "E-commerce"
   },
   {
@@ -64,7 +64,7 @@ const landingPagesData = [
     leads: 156,
     conversionRate: 4.9,
     abtesting: false,
-    lastUpdated: "1d ago",
+    dwelltime: "2h30m02s",
     template: "Educacional"
   },
   {
@@ -76,7 +76,7 @@ const landingPagesData = [
     leads: 89,
     conversionRate: 4.9,
     abtesting: true,
-    lastUpdated: "3d ago",
+    dwelltime: "2h30m02s",
     template: "Evento"
   },
   {
@@ -88,7 +88,7 @@ const landingPagesData = [
     leads: 0,
     conversionRate: 0,
     abtesting: false,
-    lastUpdated: "5d ago",
+    dwelltime: "2h30m02s",
     template: "Produto"
   },
 ];
@@ -141,7 +141,7 @@ export default function LandingPages() {
                 <TableHead className="text-foreground font-medium">Leads</TableHead>
                 <TableHead className="text-foreground font-medium">Conversão</TableHead>
                 <TableHead className="text-foreground font-medium">A/B Testing</TableHead>
-                <TableHead className="text-foreground font-medium">Atualizada</TableHead>
+                <TableHead className="text-foreground font-medium">Dwell Time</TableHead>
                 <TableHead className="w-12"></TableHead>
               </TableRow>
             </TableHeader>
@@ -184,7 +184,7 @@ export default function LandingPages() {
                       </Badge>
                     )}
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{page.lastUpdated}</TableCell>
+                  <TableCell className="text-muted-foreground">{page.dwelltime}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

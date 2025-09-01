@@ -1,4 +1,4 @@
-import { Search, Plus, Bell, User } from "lucide-react";
+import { Search, Plus, Bell, User, LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,12 +12,26 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { DateRangePicker } from "./DateRangePicker";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 interface DashboardHeaderProps {
   title?: string;
 }
 
 export function DashboardHeader({ title = "Home" }: DashboardHeaderProps) {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/login");
+  };
+
+  const getUserInitials = (email: string) => {
+    return email.substring(0, 2).toUpperCase();
+  };
+
   return (
     <header className="border-b border-border bg-card/30 backdrop-blur supports-[backdrop-filter]:bg-card/30">
       <div className="flex h-16 items-center justify-between px-6">
@@ -25,9 +39,9 @@ export function DashboardHeader({ title = "Home" }: DashboardHeaderProps) {
         <div className="flex items-center gap-6">
           <div>
             <h1 className="text-xl font-semibold text-foreground">{title}</h1>
-            <p className="text-sm text-muted-foreground">PrismaID Dashboard</p>
+            <p className="text-sm text-muted-foreground">Dashboard</p>
           </div>
-          <DateRangePicker />
+          {/*<DateRangePicker />*/}
         </div>
 
         {/* Actions */}
@@ -45,7 +59,7 @@ export function DashboardHeader({ title = "Home" }: DashboardHeaderProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button className="bg-gradient-primary hover:opacity-90 transition-smooth shadow-glow">
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="w-4 h-4" />
                 Criar
               </Button>
             </DropdownMenuTrigger>
@@ -78,7 +92,7 @@ export function DashboardHeader({ title = "Home" }: DashboardHeaderProps) {
                 <Avatar className="h-8 w-8">
                   <AvatarImage src="/placeholder-avatar.jpg" alt="User" />
                   <AvatarFallback className="bg-gradient-primary text-white">
-                    PS
+                    {user ? getUserInitials(user.email) : "U"}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -86,22 +100,26 @@ export function DashboardHeader({ title = "Home" }: DashboardHeaderProps) {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">Pedro Silva</p>
+                  <p className="text-sm font-medium leading-none">
+                    {user?.user_metadata?.full_name || "Usuário"}
+                  </p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    pedro@prismaid.com
+                    {user?.email || "email@exemplo.com"}
                   </p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/profile")}>
                 <User className="mr-2 h-4 w-4" />
                 <span>Perfil</span>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/settings")}>
+                <Settings className="mr-2 h-4 w-4" />
                 <span>Configurações</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
+                <LogOut className="mr-2 h-4 w-4" />
                 <span>Sair</span>
               </DropdownMenuItem>
             </DropdownMenuContent>

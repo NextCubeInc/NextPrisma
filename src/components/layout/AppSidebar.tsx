@@ -56,19 +56,20 @@ const getMenuItems = (workspaceType: "general" | "store") => {
         { title: "Home", url: "/", icon: Home },
         { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
         { title: "Leads", url: "/leads", icon: Target },
+        { title: "Landing Pages", url: "/landing-pages", icon: Globe },
         { title: "Relatórios", url: "/reports", icon: TrendingUp },
-        { title: "Competitors", url: "/competitors", icon: Monitor },
         { title: "Alerts", url: "/alerts", icon: AlertTriangle },
       ]
     : [
         // Store workspace menus - operational view
-        { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
-        { title: "Leads", url: "/leads", icon: Target },
-        { title: "Landing Pages", url: "/landing-pages", icon: Globe },
+        { title: "Dashboard", url: "/storedashboard", icon: BarChart3 },
+        //{ title: "Leads", url: "/leads", icon: Target },
         { title: "Ads", url: "/ads", icon: Megaphone },
         { title: "Criativos", url: "/creative-library", icon: Image },
         { title: "Analytics", url: "/analytics", icon: TrendingUp },
-        { title: "Mensagens", url: "/messages", icon: MessageSquare },
+        { title: "Competitors", url: "/competitors", icon: Monitor },
+        /*{ title: "Mensagens", url: "/messages", icon: MessageSquare },*/
+        { title: "Integrações", url: "/integrations", icon: Key },
       ];
 
   // Global menus (always visible)
@@ -78,8 +79,8 @@ const getMenuItems = (workspaceType: "general" | "store") => {
       icon: CreditCard,
       items: [
         { title: "Billing", url: "/billing", icon: CreditCard },
-        { title: "Upgrade de Plano", url: "/upgrade", icon: Crown },
-        { title: "Créditos Extras", url: "/credits", icon: Lightbulb },
+        { title: "Upgrade de Plano", url: "/upgrade", icon: Crown }/*,
+        { title: "Créditos Extras", url: "/credits", icon: Lightbulb }*/
       ],
     },
     {
@@ -87,8 +88,8 @@ const getMenuItems = (workspaceType: "general" | "store") => {
       icon: Settings,
       items: [
         { title: "Workspaces", url: "/workspaces", icon: Users },
-        { title: "Perfil", url: "/profile", icon: User },
-        { title: "Integrações", url: "/integrations", icon: Key },
+        { title: "Perfil", url: "/profile", icon: User }/*,
+        { title: "Integrações", url: "/integrations", icon: Key }*/
       ],
     },
   ];

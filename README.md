@@ -71,3 +71,116 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+
+
+
+
+##
+loss
+    - Creditos Extras
+    - 
+
+## shadcn - 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
+## SUPABASE
+TOK sbp_cc7d6266b8448dcb5b04e1f8c91d4fc541ac2117
+/*"supabase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--read-only",
+        "--project-ref=<project-ref>"
+      ],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "sbp_cc7d6266b8448dcb5b04e1f8c91d4fc541ac2117"
+      }
+    },*/
+
+
+Google Ads (rede de pesquisa, display, YouTube, apps)
+
+Bing Ads / Microsoft Advertising (inclui Yahoo e AOL)
+
+Yahoo Gemini (misto de search + native ads)
+
+Yandex Ads (forte na Rússia e leste europeu)
+
+Baidu Ads (mercado chinês)
+
+Meta Ads (Facebook, Instagram, Messenger, Audience Network)
+
+TikTok Ads
+
+LinkedIn Ads
+
+Twitter Ads / X Ads
+
+Pinterest Ads
+
+Snapchat Ads
+
+Reddit Ads
+
+Quora Ads
+
+Twitch Ads (Amazon Ads)
+
+Spotify Ads (áudio e banners)
+
+Deezer Ads
+
+Hulu Ads (nos EUA, via Disney Advertising)
+
+Mercado Livre Ads (Meli Ads)
+
+Shopee Ads
+
+Etsy Ads
+
+Walmart Connect (EUA)
+
+Rakuten Ads
+
+Alibaba/Aliexpress Ads
+
+eBay Ads
+
+Shopee Ads
+
+Rakuten Ads
+
+Unity Ads (games)
+
+AppLovin
+
+ironSource
+
+Chartboost
+
+AdColony
+
+Apple Search Ads (para apps iOS)
+
+Taboola (native ads)
+
+Outbrain (native ads)
+
+MGID (native ads)
+
+AdRoll (remarketing e retargeting)
+
+Criteo (retargeting para e-commerce)
+
+Unity Ads (jogos mobile)
+
+IronSource (jogos mobile)
+
+AppLovin (mobile e games)
+
+AdColony (mobile vídeo ads)
+
+PropellerAds (tráfego pop-under, push notifications, etc.)
+
+RevContent (native ads)
+
+BuySellAds (rede de mídia display direta)

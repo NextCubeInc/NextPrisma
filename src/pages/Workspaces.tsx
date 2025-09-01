@@ -245,12 +245,10 @@ export default function Workspaces() {
                         <Users className="w-4 h-4 mr-2" />
                         Gerenciar Membros
                       </DropdownMenuItem>
-                      {workspace.status === 'inactive' && (
                         <DropdownMenuItem className="text-red-400 hover:bg-red-500/10">
                           <Trash2 className="w-4 h-4 mr-2" />
                           Excluir
                         </DropdownMenuItem>
-                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
