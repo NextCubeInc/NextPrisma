@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronDown, Plus, Building2, Store, Loader2 } from "lucide-react";
+import { ChevronDown, Plus, Building2, Store } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
 import { Button } from "@/components/ui/button";
@@ -13,58 +13,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function WorkspaceSelector() {
-  const { currentWorkspace, workspaces, setCurrentWorkspace, isLoading, error } = useWorkspace();
+  const { currentWorkspace, workspaces, setCurrentWorkspace } = useWorkspace();
   const [isOpen, setIsOpen] = useState(false);
 
   const getWorkspaceIcon = (type: string) => {
     return type === "general" ? Building2 : Store;
   };
-
-  // Mostrar loading se estiver carregando
-  if (isLoading) {
-    return (
-      <div className="p-4 border-b border-sidebar-border">
-        <div className="flex items-center gap-3 h-12 px-3">
-          <Loader2 className="w-4 h-4 animate-spin text-sidebar-foreground/60" />
-          <span className="text-sm text-sidebar-foreground/60">Carregando workspaces...</span>
-        </div>
-      </div>
-    );
-  }
-
-  // Mostrar erro se houver problema
-  if (error) {
-    return (
-      <div className="p-4 border-b border-sidebar-border">
-        <div className="flex items-center gap-3 h-12 px-3">
-          <div className="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center">
-            <Store className="w-4 h-4 text-red-400" />
-          </div>
-          <div className="text-left">
-            <p className="text-sm font-medium text-red-400">Erro ao carregar</p>
-            <p className="text-xs text-red-400/60">Tente novamente</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Se não há workspaces
-  if (!currentWorkspace || workspaces.length === 0) {
-    return (
-      <div className="p-4 border-b border-sidebar-border">
-        <div className="flex items-center gap-3 h-12 px-3">
-          <div className="w-8 h-8 rounded-lg bg-gray-500/20 flex items-center justify-center">
-            <Store className="w-4 h-4 text-gray-400" />
-          </div>
-          <div className="text-left">
-            <p className="text-sm font-medium text-gray-400">Nenhum workspace</p>
-            <p className="text-xs text-gray-400/60">Crie seu primeiro</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="p-4 border-b border-sidebar-border">

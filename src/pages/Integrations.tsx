@@ -1,478 +1,123 @@
-import { Plug, CheckCircle, XCircle, Settings, Plus, AlertTriangle, ExternalLink, Heading } from "lucide-react";
+import { Plug, CheckCircle, XCircle, Settings, Plus, AlertTriangle, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 
-import { SiGoogleads, SiBaidu, SiMeta, SiTiktok, 
-  SiLinkedin, SiX, SiPinterest, SiSnapchat, SiReddit, 
-  SiQuora, SiAmazon, SiSpotify, SiMercadopago, SiShopee,
-  SiEtsy, SiRakuten, SiAlibabadotcom, SiEbay, SiUnity,
-  SiRocket, SiApple, SiAdroll, SiBuysellads
-} from "react-icons/si";
-import { GiBoatPropeller } from "react-icons/gi";
-import { DiBingSmall, DiYahooSmall } from "react-icons/di";
-import { TbBrandWalmart, TbVectorTriangle, TbChartAreaFilled, TbBrandDeezer } from "react-icons/tb";
-
 const integrations = [
   {
     id: 1,
-    name: "Google Ads",
-    category: "Publicidade",
-    description: "Gerencie campanhas de pesquisa, display, YouTube e apps.",
-    status: "Soon",
-    icon: SiGoogleads,
-    setupDate: null,
-    lastSync: null,
-    features: ["Campanhas de pesquisa", "Rede de display", "YouTube Ads", "Apps"],
-    config: null
+    name: "WhatsApp Business API",
+    category: "Mensagens",
+    description: "Envie mensagens automáticas e gerencie conversas do WhatsApp",
+    status: "connected",
+    icon: "💬",
+    setupDate: "2023-12-15",
+    lastSync: "2min atrás",
+    features: ["Mensagens automáticas", "Templates aprovados", "Webhook de status"],
+    config: {
+      phoneNumber: "+55 11 99999-0000",
+      businessId: "120363194***",
+      webhook: "Ativo"
+    }
   },
   {
     id: 2,
-    name: "Bing Ads / Microsoft Advertising",
-    category: "Publicidade",
-    description: "Gerencie anúncios no Bing, Yahoo e AOL.",
-    status: "disconnected",
-    icon: DiBingSmall,
-    setupDate: null,
-    lastSync: null,
-    features: ["Campanhas de pesquisa", "Rede display", "Yahoo e AOL"],
-    config: null
+    name: "Meta Ads (Facebook/Instagram)",
+    category: "Publicidade", 
+    description: "Importe leads de campanhas do Facebook e Instagram automaticamente",
+    status: "connected",
+    icon: "📱",
+    setupDate: "2024-01-10",
+    lastSync: "5min atrás",
+    features: ["Import de leads", "Métricas de campanha", "Webhook automático"],
+    config: {
+      adAccount: "act_123456789",
+      pages: "3 páginas conectadas",
+      permissions: "ads_read, leads_retrieval"
+    }
   },
   {
     id: 3,
-    name: "Yahoo Gemini",
+    name: "Google Ads",
     category: "Publicidade",
-    description: "Plataforma híbrida de anúncios search + native ads.",
-    status: "disconnected",
-    icon: DiYahooSmall,
-    setupDate: null,
-    lastSync: null,
-    features: ["Search ads", "Native ads", "Campanhas híbridas"],
-    config: null
+    description: "Conecte suas campanhas do Google Ads e importe leads automaticamente", 
+    status: "error",
+    icon: "🔍",
+    setupDate: "2024-01-05",
+    lastSync: "Token expirado",
+    features: ["Import de leads", "Métricas de performance", "Conversões offline"],
+    config: {
+      customerId: "123-456-7890",
+      accounts: "2 contas",
+      status: "Token expirado - requer reautorização"
+    }
   },
   {
     id: 4,
-    name: "Yandex Ads@",
-    category: "Publicidade",
-    description: "Rede de anúncios forte na Rússia e leste europeu.",
-    status: "disconnected",
-    icon: "@",
-    setupDate: null,
-    lastSync: null,
-    features: ["Search ads", "Display", "Segmentação local"],
-    config: null
+    name: "Stripe",
+    category: "Pagamentos",
+    description: "Processe pagamentos e gerencie assinaturas automaticamente",
+    status: "connected", 
+    icon: "💳",
+    setupDate: "2023-11-20",
+    lastSync: "1h atrás",
+    features: ["Processamento de pagamentos", "Webhooks", "Gestão de assinaturas"],
+    config: {
+      mode: "Live",
+      webhooks: "5 endpoints ativos",
+      currencies: "BRL, USD"
+    }
   },
   {
     id: 5,
-    name: "Baidu Ads@",
-    category: "Publicidade",
-    description: "Principal plataforma de anúncios no mercado chinês.",
+    name: "Zapier",
+    category: "Automação",
+    description: "Conecte com mais de 3000 apps através do Zapier",
     status: "disconnected",
-    icon: SiBaidu,
+    icon: "⚡",
     setupDate: null,
     lastSync: null,
-    features: ["Search ads", "Display", "China market reach"],
+    features: ["3000+ integrações", "Automações personalizadas", "Triggers avançados"],
     config: null
   },
   {
     id: 6,
-    name: "Meta Ads",
-    category: "Publicidade",
-    description: "Anúncios em Facebook, Instagram, Messenger e Audience Network.",
+    name: "Mailchimp",
+    category: "Email Marketing",
+    description: "Sincronize leads com listas do Mailchimp automaticamente",
     status: "disconnected",
-    icon: SiMeta,
+    icon: "📧", 
     setupDate: null,
     lastSync: null,
-    features: ["Leads", "Campanhas sociais", "Segmentação avançada"],
+    features: ["Sync de contatos", "Campanhas automáticas", "Segmentação"],
     config: null
   },
   {
     id: 7,
-    name: "TikTok Ads",
-    category: "Publicidade",
-    description: "Crie campanhas no TikTok com alcance global.",
+    name: "HubSpot CRM",
+    category: "CRM",
+    description: "Sincronize leads e contatos com seu HubSpot CRM",
     status: "disconnected",
-    icon: SiTiktok,
+    icon: "🎯",
     setupDate: null,
     lastSync: null,
-    features: ["Vídeo curto", "Alcance jovem", "Trends"],
+    features: ["Sync bidirecional", "Pipeline management", "Activity tracking"],
     config: null
   },
   {
     id: 8,
-    name: "LinkedIn Ads",
-    category: "Publicidade",
-    description: "Anúncios voltados para público B2B.",
-    status: "disconnected",
-    icon: SiLinkedin,
+    name: "RD Station",
+    category: "Marketing",
+    description: "Envie leads qualificados para o RD Station automaticamente",
+    status: "disconnected", 
+    icon: "📊",
     setupDate: null,
     lastSync: null,
-    features: ["Segmentação profissional", "Leads B2B", "Conteúdo patrocinado"],
-    config: null
-  },
-  {
-    id: 9,
-    name: "X Ads",
-    category: "Publicidade",
-    description: "Campanhas na plataforma X (antigo Twitter).",
-    status: "disconnected",
-    icon: SiX,
-    setupDate: null,
-    lastSync: null,
-    features: ["Trends", "Campanhas segmentadas", "Tweets promovidos"],
-    config: null
-  },
-  {
-    id: 10,
-    name: "Pinterest Ads",
-    category: "Publicidade",
-    description: "Anúncios visuais para descoberta e inspiração.",
-    status: "disconnected",
-    icon: SiPinterest,
-    setupDate: null,
-    lastSync: null,
-    features: ["Pins patrocinados", "E-commerce", "Brand awareness"],
-    config: null
-  },
-  {
-    id: 11,
-    name: "Snapchat Ads",
-    category: "Publicidade",
-    description: "Campanhas interativas no Snapchat.",
-    status: "disconnected",
-    icon: SiSnapchat,
-    setupDate: null,
-    lastSync: null,
-    features: ["AR lenses", "Stories Ads", "Segmentação jovem"],
-    config: null
-  },
-  {
-    id: 12,
-    name: "Reddit Ads",
-    category: "Publicidade",
-    description: "Alcance comunidades segmentadas no Reddit.",
-    status: "disconnected",
-    icon: SiReddit,
-    setupDate: null,
-    lastSync: null,
-    features: ["Comunidades", "Segmentação por interesse", "Engajamento"],
-    config: null
-  },
-  {
-    id: 13,
-    name: "Quora Ads",
-    category: "Publicidade",
-    description: "Anúncios em plataforma de perguntas e respostas.",
-    status: "disconnected",
-    icon: SiQuora,
-    setupDate: null,
-    lastSync: null,
-    features: ["Contextual targeting", "Leads", "Display ads"],
-    config: null
-  },
-  {
-    id: 14,
-    name: "Amazon Ads",
-    category: "Publicidade",
-    description: "Campanhas em transmissões ao vivo no Twitch.",
-    status: "disconnected",
-    icon: SiAmazon,
-    setupDate: null,
-    lastSync: null,
-    features: ["Live streaming", "Gamers", "Vídeo ads"],
-    config: null
-  },
-  {
-    id: 15,
-    name: "Spotify Ads",
-    category: "Publicidade",
-    description: "Anúncios em áudio e banners no Spotify.",
-    status: "disconnected",
-    icon: SiSpotify,
-    setupDate: null,
-    lastSync: null,
-    features: ["Áudio ads", "Display banners", "Segmentação musical"],
-    config: null
-  },
-  {
-    id: 16,
-    name: "Deezer Ads",
-    category: "Publicidade",
-    description: "Publicidade em áudio e display no Deezer.",
-    status: "disconnected",
-    icon: TbBrandDeezer,
-    setupDate: null,
-    lastSync: null,
-    features: ["Áudio ads", "Música segmentada", "Campanhas digitais"],
-    config: null
-  },
-  {
-    id: 17,
-    name: "Hulu Ads",
-    category: "Publicidade",
-    description: "Publicidade em vídeo no Hulu (via Disney Advertising, EUA).",
-    status: "disconnected",
-    icon: Heading,
-    setupDate: null,
-    lastSync: null,
-    features: ["Streaming ads", "Campanhas em vídeo", "EUA"],
-    config: null
-  },
-  {
-    id: 18,
-    name: "Mercado Livre Ads (Meli Ads)",
-    category: "Publicidade",
-    description: "Anúncios no Mercado Livre e Mercado Shops.",
-    status: "disconnected",
-    icon: SiMercadopago,
-    setupDate: null,
-    lastSync: null,
-    features: ["Sponsored products", "Marketplace ads", "E-commerce"],
-    config: null
-  },
-  {
-    id: 19,
-    name: "Shopee Ads",
-    category: "Publicidade",
-    description: "Publicidade e destaque de produtos na Shopee.",
-    status: "disconnected",
-    icon: SiShopee,
-    setupDate: null,
-    lastSync: null,
-    features: ["E-commerce ads", "Sponsored listings", "Marketplace"],
-    config: null
-  },
-  {
-    id: 20,
-    name: "Etsy Ads",
-    category: "Publicidade",
-    description: "Publicidade para vendedores na Etsy.",
-    status: "disconnected",
-    icon: SiEtsy,
-    setupDate: null,
-    lastSync: null,
-    features: ["Sponsored products", "Marketplace", "Crafts"],
-    config: null
-  },
-  {
-    id: 21,
-    name: "Walmart Connect",
-    category: "Publicidade",
-    description: "Plataforma de anúncios da Walmart nos EUA.",
-    status: "disconnected",
-    icon: TbBrandWalmart,
-    setupDate: null,
-    lastSync: null,
-    features: ["Retail media", "Marketplace ads", "E-commerce"],
-    config: null
-  },
-  {
-    id: 22,
-    name: "Rakuten Ads",
-    category: "Publicidade",
-    description: "Rede de anúncios da Rakuten, com foco em e-commerce.",
-    status: "disconnected",
-    icon: SiRakuten,
-    setupDate: null,
-    lastSync: null,
-    features: ["Affiliate ads", "E-commerce", "Japão"],
-    config: null
-  },
-  {
-    id: 23,
-    name: "Alibaba / Aliexpress Ads",
-    category: "Publicidade",
-    description: "Publicidade dentro das plataformas Alibaba e Aliexpress.",
-    status: "disconnected",
-    icon: SiAlibabadotcom,
-    setupDate: null,
-    lastSync: null,
-    features: ["E-commerce", "China market", "Sponsored products"],
-    config: null
-  },
-  {
-    id: 24,
-    name: "eBay Ads",
-    category: "Publicidade",
-    description: "Publicidade nativa no marketplace eBay.",
-    status: "disconnected",
-    icon: SiEbay,
-    setupDate: null,
-    lastSync: null,
-    features: ["Sponsored products", "Marketplace", "E-commerce"],
-    config: null
-  },
-  {
-    id: 25,
-    name: "Unity Ads",
-    category: "Publicidade",
-    description: "Publicidade em jogos mobile via Unity.",
-    status: "disconnected",
-    icon: SiUnity,
-    setupDate: null,
-    lastSync: null,
-    features: ["In-game ads", "Vídeo ads", "Mobile games"],
-    config: null
-  },
-  {
-    id: 26,
-    name: "AppLovin",
-    category: "Publicidade",
-    description: "Rede de anúncios focada em apps e jogos mobile.",
-    status: "disconnected",
-    icon: TbVectorTriangle,
-    setupDate: null,
-    lastSync: null,
-    features: ["Mobile games", "App monetization", "Performance ads"],
-    config: null
-  },
-  {
-    id: 27,
-    name: "ironSource",
-    category: "Publicidade",
-    description: "Rede de anúncios mobile e jogos.",
-    status: "disconnected",
-    icon: "⚒️",
-    setupDate: null,
-    lastSync: null,
-    features: ["Mobile ads", "Games monetization", "User acquisition"],
-    config: null
-  },
-  {
-    id: 28,
-    name: "Chartboost",
-    category: "Publicidade",
-    description: "Plataforma de monetização e user acquisition para games.",
-    status: "disconnected",
-    icon: TbChartAreaFilled,
-    setupDate: null,
-    lastSync: null,
-    features: ["Game ads", "In-app campaigns", "User acquisition"],
-    config: null
-  },
-  {
-    id: 29,
-    name: "AdColony",
-    category: "Publicidade",
-    description: "Plataforma de anúncios em vídeo para mobile.",
-    status: "disconnected",
-    icon: SiRocket,
-    setupDate: null,
-    lastSync: null,
-    features: ["Vídeo ads", "Mobile reach", "Games"],
-    config: null
-  },
-  {
-    id: 30,
-    name: "Apple Search Ads",
-    category: "Publicidade",
-    description: "Publicidade para apps no ecossistema iOS.",
-    status: "disconnected",
-    icon: SiApple,
-    setupDate: null,
-    lastSync: null,
-    features: ["App Store ads", "iOS apps", "User acquisition"],
-    config: null
-  },
-  {
-    id: 31,
-    name: "Taboola",
-    category: "Publicidade",
-    description: "Plataforma global de native ads.",
-    status: "disconnected",
-    icon: "oo",
-    setupDate: null,
-    lastSync: null,
-    features: ["Native ads", "Content discovery", "Retargeting"],
-    config: null
-  },
-  {
-    id: 32,
-    name: "Outbrain",
-    category: "Publicidade",
-    description: "Rede global de native ads.",
-    status: "disconnected",
-    icon: ":)",
-    setupDate: null,
-    lastSync: null,
-    features: ["Native ads", "Content amplification", "Retargeting"],
-    config: null
-  },
-  {
-    id: 33,
-    name: "MGID",
-    category: "Publicidade",
-    description: "Plataforma de native ads e content discovery.",
-    status: "disconnected",
-    icon: "M",
-    setupDate: null,
-    lastSync: null,
-    features: ["Native ads", "Discovery", "Segmentação"],
-    config: null
-  },
-  {
-    id: 34,
-    name: "AdRoll",
-    category: "Publicidade",
-    description: "Plataforma de remarketing e retargeting multicanal.",
-    status: "disconnected",
-    icon: SiAdroll,
-    setupDate: null,
-    lastSync: null,
-    features: ["Remarketing", "Cross-channel ads", "Automation"],
-    config: null
-  },
-  {
-    id: 35,
-    name: "Criteo",
-    category: "Publicidade",
-    description: "Especialista em retargeting para e-commerce.",
-    status: "disconnected",
-    icon: "CR",
-    setupDate: null,
-    lastSync: null,
-    features: ["Dynamic retargeting", "E-commerce", "Conversion tracking"],
-    config: null
-  },
-  {
-    id: 36,
-    name: "PropellerAds",
-    category: "Publicidade",
-    description: "Tráfego alternativo (pop-under, push, etc).",
-    status: "disconnected",
-    icon: GiBoatPropeller,
-    setupDate: null,
-    lastSync: null,
-    features: ["Push notifications", "Pop-under", "Alternative traffic"],
-    config: null
-  },
-  {
-    id: 37,
-    name: "RevContent",
-    category: "Publicidade",
-    description: "Plataforma de native ads focada em publishers.",
-    status: "disconnected",
-    icon: "Rev",
-    setupDate: null,
-    lastSync: null,
-    features: ["Native ads", "Content discovery", "Performance"],
-    config: null
-  },
-  {
-    id: 38,
-    name: "BuySellAds",
-    category: "Publicidade",
-    description: "Rede para compra direta de mídia display.",
-    status: "disconnected",
-    icon: SiBuysellads,
-    setupDate: null,
-    lastSync: null,
-    features: ["Direct media buying", "Display ads", "Publisher network"],
+    features: ["Lead scoring", "Automação de marketing", "Nutrição de leads"],
     config: null
   }
 ];
-
 
 const statusConfig = {
   connected: {
@@ -489,11 +134,6 @@ const statusConfig = {
     color: "bg-red-500/10 text-red-400 border-red-500/20",
     icon: AlertTriangle,
     label: "Erro"
-  },
-  Soon: {
-    color: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-    icon: AlertTriangle,
-    label: "Soon"
   }
 };
 
@@ -599,7 +239,7 @@ export default function Integrations() {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center text-2xl">
-                      {typeof integration.icon === 'string' ? integration.icon : <integration.icon />}
+                      {integration.icon}
                     </div>
                     <div>
                       <CardTitle className="text-lg text-foreground">{integration.name}</CardTitle>
@@ -633,7 +273,7 @@ export default function Integrations() {
                         {Object.entries(integration.config).map(([key, value]) => (
                           <div key={key} className="text-xs text-muted-foreground flex justify-between">
                             <span className="capitalize">{key.replace(/([A-Z])/g, ' $1').toLowerCase()}:</span>
-                            {/*<span>{value}</span>*/}
+                            <span>{value}</span>
                           </div>
                         ))}
                       </div>

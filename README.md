@@ -71,6 +71,9 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+<<<<<<< HEAD
+
+=======
 
 
 
@@ -373,3 +376,4 @@ type [name: 'idx_alerts_type']
 Note: 'Armazena os alertas configurados pelos usuários para monitorar métricas e eventos importantes.'
 }
 ```
+>>>>>>> parent of 415c043 (feat: implementa sistema de autenticação e workspaces com Supabase)
