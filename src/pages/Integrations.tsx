@@ -1,8 +1,9 @@
+import React, { useState, useMemo } from "react";
 import { Plug, CheckCircle, XCircle, Settings, Plus, AlertTriangle, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
+import { useWorkspace } from "@/contexts/WorkspaceContext";
 
 const integrations = [
   {
@@ -15,6 +16,8 @@ const integrations = [
     setupDate: "2023-12-15",
     lastSync: "2min atrás",
     features: ["Mensagens automáticas", "Templates aprovados", "Webhook de status"],
+    workspaceId: "store-1",
+    loja: "Loja Fashion Prime",
     config: {
       phoneNumber: "+55 11 99999-0000",
       businessId: "120363194***",
@@ -23,34 +26,97 @@ const integrations = [
   },
   {
     id: 2,
-    name: "Meta Ads (Facebook/Instagram)",
+    name: "Meta Ads - Conta Principal",
     category: "Publicidade", 
-    description: "Importe leads de campanhas do Facebook e Instagram automaticamente",
+    description: "Conta principal do Facebook Ads para campanhas de moda",
     status: "connected",
     icon: "📱",
     setupDate: "2024-01-10",
     lastSync: "5min atrás",
     features: ["Import de leads", "Métricas de campanha", "Webhook automático"],
+    workspaceId: "store-1",
+    loja: "Loja Fashion Prime",
     config: {
       adAccount: "act_123456789",
       pages: "3 páginas conectadas",
-      permissions: "ads_read, leads_retrieval"
+      permissions: "ads_read, leads_retrieval",
+      accountName: "Fashion Prime - Conta Principal"
+    }
+  },
+  {
+    id: 9,
+    name: "Meta Ads - Conta Secundária",
+    category: "Publicidade", 
+    description: "Conta secundária do Facebook Ads para campanhas sazonais",
+    status: "connected",
+    icon: "📱",
+    setupDate: "2024-02-15",
+    lastSync: "1h atrás",
+    features: ["Import de leads", "Métricas de campanha", "Webhook automático"],
+    workspaceId: "store-1",
+    loja: "Loja Fashion Prime",
+    config: {
+      adAccount: "act_987654321",
+      pages: "2 páginas conectadas",
+      permissions: "ads_read, leads_retrieval",
+      accountName: "Fashion Prime - Campanhas Sazonais"
     }
   },
   {
     id: 3,
-    name: "Google Ads",
+    name: "Meta Ads - Tech Store",
     category: "Publicidade",
-    description: "Conecte suas campanhas do Google Ads e importe leads automaticamente", 
+    description: "Conta do Facebook Ads para produtos de tecnologia", 
+    status: "connected",
+    icon: "📱",
+    setupDate: "2024-01-05",
+    lastSync: "3min atrás",
+    features: ["Import de leads", "Métricas de campanha", "Webhook automático"],
+    workspaceId: "store-2",
+    loja: "Loja Tech Store",
+    config: {
+      adAccount: "act_555666777",
+      pages: "1 página conectada",
+      permissions: "ads_read, leads_retrieval",
+      accountName: "Tech Store - Produtos"
+    }
+  },
+  {
+    id: 10,
+    name: "Meta Ads - Tech Store B2B",
+    category: "Publicidade",
+    description: "Conta do Facebook Ads para vendas B2B de tecnologia", 
+    status: "connected",
+    icon: "📱",
+    setupDate: "2024-02-20",
+    lastSync: "15min atrás",
+    features: ["Import de leads", "Métricas de campanha", "Webhook automático"],
+    workspaceId: "store-2",
+    loja: "Loja Tech Store",
+    config: {
+      adAccount: "act_888999000",
+      pages: "2 páginas conectadas",
+      permissions: "ads_read, leads_retrieval",
+      accountName: "Tech Store - B2B"
+    }
+  },
+  {
+    id: 11,
+    name: "Google Ads - Tech Store",
+    category: "Publicidade",
+    description: "Conta do Google Ads para produtos de tecnologia", 
     status: "error",
     icon: "🔍",
     setupDate: "2024-01-05",
     lastSync: "Token expirado",
     features: ["Import de leads", "Métricas de performance", "Conversões offline"],
+    workspaceId: "store-2",
+    loja: "Loja Tech Store",
     config: {
       customerId: "123-456-7890",
       accounts: "2 contas",
-      status: "Token expirado - requer reautorização"
+      status: "Token expirado - requer reautorização",
+      accountName: "Tech Store - Google Ads"
     }
   },
   {
@@ -63,6 +129,8 @@ const integrations = [
     setupDate: "2023-11-20",
     lastSync: "1h atrás",
     features: ["Processamento de pagamentos", "Webhooks", "Gestão de assinaturas"],
+    workspaceId: "general",
+    loja: "Workspace Geral",
     config: {
       mode: "Live",
       webhooks: "5 endpoints ativos",
@@ -79,11 +147,51 @@ const integrations = [
     setupDate: null,
     lastSync: null,
     features: ["3000+ integrações", "Automações personalizadas", "Triggers avançados"],
+    workspaceId: "store-2",
+    loja: "Loja Tech Store",
     config: null
   },
   {
     id: 6,
-    name: "Mailchimp",
+    name: "Meta Ads - Beauty Care",
+    category: "Publicidade",
+    description: "Conta do Facebook Ads para produtos de beleza e cuidados",
+    status: "connected",
+    icon: "📱", 
+    setupDate: "2024-01-20",
+    lastSync: "8min atrás",
+    features: ["Import de leads", "Métricas de campanha", "Webhook automático"],
+    workspaceId: "store-3",
+    loja: "Loja Beauty & Care",
+    config: {
+      adAccount: "act_111222333",
+      pages: "4 páginas conectadas",
+      permissions: "ads_read, leads_retrieval",
+      accountName: "Beauty & Care - Produtos"
+    }
+  },
+  {
+    id: 12,
+    name: "Meta Ads - Beauty Care Influencers",
+    category: "Publicidade",
+    description: "Conta do Facebook Ads para campanhas com influencers de beleza",
+    status: "connected",
+    icon: "📱", 
+    setupDate: "2024-03-01",
+    lastSync: "2h atrás",
+    features: ["Import de leads", "Métricas de campanha", "Webhook automático"],
+    workspaceId: "store-3",
+    loja: "Loja Beauty & Care",
+    config: {
+      adAccount: "act_444555666",
+      pages: "6 páginas conectadas",
+      permissions: "ads_read, leads_retrieval",
+      accountName: "Beauty & Care - Influencers"
+    }
+  },
+  {
+    id: 13,
+    name: "Mailchimp - Beauty Care",
     category: "Email Marketing",
     description: "Sincronize leads com listas do Mailchimp automaticamente",
     status: "disconnected",
@@ -91,6 +199,8 @@ const integrations = [
     setupDate: null,
     lastSync: null,
     features: ["Sync de contatos", "Campanhas automáticas", "Segmentação"],
+    workspaceId: "store-3",
+    loja: "Loja Beauty & Care",
     config: null
   },
   {
@@ -103,6 +213,8 @@ const integrations = [
     setupDate: null,
     lastSync: null,
     features: ["Sync bidirecional", "Pipeline management", "Activity tracking"],
+    workspaceId: "store-1",
+    loja: "Loja Fashion Prime",
     config: null
   },
   {
@@ -115,6 +227,8 @@ const integrations = [
     setupDate: null,
     lastSync: null,
     features: ["Lead scoring", "Automação de marketing", "Nutrição de leads"],
+    workspaceId: "store-3",
+    loja: "Loja Beauty & Care",
     config: null
   }
 ];
@@ -140,6 +254,52 @@ const statusConfig = {
 const categories = ["Todos", "Mensagens", "Publicidade", "Pagamentos", "Automação", "Email Marketing", "CRM", "Marketing"];
 
 export default function Integrations() {
+  const { currentWorkspace } = useWorkspace();
+  const isGeneralWorkspace = currentWorkspace.type === "general";
+  
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [lojaFilter, setLojaFilter] = useState("all");
+
+  // Filter integrations based on workspace and filters
+  const filteredIntegrations = useMemo(() => {
+    return integrations.filter(integration => {
+      // Workspace filter
+      const matchesWorkspace = isGeneralWorkspace || integration.workspaceId === currentWorkspace.id;
+      
+      // Search filter
+      const matchesSearch = integration.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           integration.description.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      // Category filter
+      const matchesCategory = categoryFilter === "all" || integration.category === categoryFilter;
+      
+      // Loja filter (only in general workspace)
+      const matchesLoja = !isGeneralWorkspace || 
+                          lojaFilter === "all" || 
+                          integration.loja === lojaFilter;
+      
+      return matchesWorkspace && matchesSearch && matchesCategory && matchesLoja;
+    });
+  }, [isGeneralWorkspace, currentWorkspace.id, searchTerm, categoryFilter, lojaFilter]);
+
+  // Calculate statistics
+  const stats = useMemo(() => {
+    const totalIntegrations = filteredIntegrations.length;
+    const connectedIntegrations = filteredIntegrations.filter(i => i.status === "connected").length;
+    const errorIntegrations = filteredIntegrations.filter(i => i.status === "error").length;
+    const disconnectedIntegrations = filteredIntegrations.filter(i => i.status === "disconnected").length;
+
+    return { totalIntegrations, connectedIntegrations, errorIntegrations, disconnectedIntegrations };
+  }, [filteredIntegrations]);
+
+  // Get unique lojas for filter (only in general workspace)
+  const lojas = useMemo(() => {
+    if (!isGeneralWorkspace) return [];
+    const uniqueLojas = [...new Set(integrations.map(i => i.loja))];
+    return uniqueLojas;
+  }, [isGeneralWorkspace]);
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -147,6 +307,7 @@ export default function Integrations() {
         <h1 className="text-3xl font-bold text-foreground">Integrações</h1>
         <p className="text-muted-foreground">
           Conecte o PrismaID com suas ferramentas favoritas e automatize seus processos
+          {!isGeneralWorkspace && ` - ${currentWorkspace.name}`}
         </p>
       </div>
 
@@ -157,7 +318,7 @@ export default function Integrations() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Integrações Ativas</p>
-                <p className="text-2xl font-bold text-foreground">4</p>
+                <p className="text-2xl font-bold text-foreground">{stats.connectedIntegrations}</p>
               </div>
               <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
                 <CheckCircle className="w-6 h-6 text-green-400" />
@@ -170,8 +331,8 @@ export default function Integrations() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Disponíveis</p>
-                <p className="text-2xl font-bold text-foreground">8</p>
+                <p className="text-sm font-medium text-muted-foreground">Total</p>
+                <p className="text-2xl font-bold text-foreground">{stats.totalIntegrations}</p>
               </div>
               <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
                 <Plug className="w-6 h-6 text-blue-400" />
@@ -185,7 +346,7 @@ export default function Integrations() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Com Erro</p>
-                <p className="text-2xl font-bold text-foreground">1</p>
+                <p className="text-2xl font-bold text-foreground">{stats.errorIntegrations}</p>
               </div>
               <div className="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center">
                 <AlertTriangle className="w-6 h-6 text-red-400" />
@@ -198,38 +359,93 @@ export default function Integrations() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Última Sync</p>
-                <p className="text-2xl font-bold text-foreground">2min</p>
+                <p className="text-sm font-medium text-muted-foreground">Desconectadas</p>
+                <p className="text-2xl font-bold text-foreground">{stats.disconnectedIntegrations}</p>
               </div>
-              <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
-                <Settings className="w-6 h-6 text-purple-400" />
+              <div className="w-12 h-12 bg-gray-500/20 rounded-xl flex items-center justify-center">
+                <XCircle className="w-6 h-6 text-gray-400" />
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Category Filters */}
+      {/* Filters */}
       <Card className="bg-gradient-card border-border/50">
-        <CardContent className="p-6">
-          <div className="flex flex-wrap gap-2">
-            {categories.map((category) => (
-              <Button
-                key={category}
-                variant="outline"
-                size="sm"
-                className="border-border hover:bg-accent/50"
+        <CardHeader>
+          <CardTitle className="text-foreground">Filtros e Busca</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Search */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Buscar Integração</label>
+              <input
+                type="text"
+                placeholder="Buscar por nome ou descrição..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-3 py-2 bg-background border border-border rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+
+            {/* Category Filter */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Categoria</label>
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="w-full px-3 py-2 bg-background border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               >
-                {category}
-              </Button>
-            ))}
+                <option value="all">Todas as Categorias</option>
+                {categories.slice(1).map(category => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Loja Filter (only in general workspace) */}
+            {isGeneralWorkspace && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Loja</label>
+                <select
+                  value={lojaFilter}
+                  onChange={(e) => setLojaFilter(e.target.value)}
+                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="all">Todas as Lojas</option>
+                  {lojas.map(loja => (
+                    <option key={loja} value={loja}>{loja}</option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
 
       {/* Integrations Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {integrations.map((integration) => {
+      {filteredIntegrations.length === 0 ? (
+        <Card className="bg-gradient-card border-border/50">
+          <CardContent className="p-12 text-center">
+            <div className="w-16 h-16 bg-muted/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Plug className="w-8 h-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold text-foreground mb-2">Nenhuma integração encontrada</h3>
+            <p className="text-muted-foreground mb-4">
+              {searchTerm || categoryFilter !== "all" || lojaFilter !== "all"
+                ? "Tente ajustar os filtros para encontrar integrações."
+                : "Nenhuma integração configurada para este workspace."}
+            </p>
+            <Button className="bg-gradient-primary hover:bg-gradient-primary/90 text-white shadow-glow">
+              <Plus className="w-4 h-4 mr-2" />
+              Adicionar Integração
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {filteredIntegrations.map((integration) => {
           const statusInfo = statusConfig[integration.status];
           const StatusIcon = statusInfo.icon;
 
@@ -243,9 +459,21 @@ export default function Integrations() {
                     </div>
                     <div>
                       <CardTitle className="text-lg text-foreground">{integration.name}</CardTitle>
-                      <Badge variant="outline" className="text-xs border-border/50 text-muted-foreground mt-1">
-                        {integration.category}
-                      </Badge>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="outline" className="text-xs border-border/50 text-muted-foreground">
+                          {integration.category}
+                        </Badge>
+                        {isGeneralWorkspace && (
+                          <Badge variant="outline" className="text-xs border-primary/20 text-primary">
+                            {integration.loja}
+                          </Badge>
+                        )}
+                        {integration.name.includes('Meta Ads') && (
+                          <Badge variant="outline" className="text-xs border-blue-500/20 text-blue-400">
+                            Múltiplas Contas
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <Badge variant="outline" className={statusInfo.color}>
@@ -270,12 +498,20 @@ export default function Integrations() {
                     {integration.config && (
                       <div className="bg-accent/10 rounded-lg p-3 space-y-1">
                         <h5 className="text-xs font-medium text-foreground">Configuração:</h5>
-                        {Object.entries(integration.config).map(([key, value]) => (
-                          <div key={key} className="text-xs text-muted-foreground flex justify-between">
-                            <span className="capitalize">{key.replace(/([A-Z])/g, ' $1').toLowerCase()}:</span>
-                            <span>{value}</span>
+                        {integration.config.accountName && (
+                          <div className="text-xs text-primary font-medium mb-2">
+                            📋 {integration.config.accountName}
                           </div>
-                        ))}
+                        )}
+                        {Object.entries(integration.config).map(([key, value]) => {
+                          if (key === 'accountName') return null; // Skip accountName as it's shown above
+                          return (
+                            <div key={key} className="text-xs text-muted-foreground flex justify-between">
+                              <span className="capitalize">{key.replace(/([A-Z])/g, ' $1').toLowerCase()}:</span>
+                              <span>{value}</span>
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -329,7 +565,8 @@ export default function Integrations() {
             </Card>
           );
         })}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -24,7 +24,7 @@ export function DashboardLayout({ children, title }: DashboardLayoutProps) {
           <div className="flex-1 flex flex-col">
             <DashboardHeader title={title} />
             
-            <main className="flex-1 p-6 overflow-auto">
+            <main className="flex-1 p-10 overflow-auto max-h-max">
               {children}
             </main>
           </div>

@@ -1,12 +1,8 @@
 import { 
-  Home, 
-  Target, 
-  Megaphone, 
-  Globe, 
+  Home,
   Zap, 
   BarChart3, 
   TrendingUp, 
-  RotateCcw,
   CreditCard,
   Crown,
   Settings,
@@ -15,10 +11,7 @@ import {
   Key,
   ChevronDown,
   AlertTriangle,
-  MessageSquare,
-  Lightbulb,
   Monitor,
-  ShoppingBag,
   Image
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
@@ -47,6 +40,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import Logo from "@/assets/PrismaLogo.png"
 
 // Dynamic menu items based on workspace type
 const getMenuItems = (workspaceType: "general" | "store") => {
@@ -54,21 +48,22 @@ const getMenuItems = (workspaceType: "general" | "store") => {
     ? [
         // General workspace menus - consolidated view
         { title: "Home", url: "/", icon: Home },
-        { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
-        { title: "Leads", url: "/leads", icon: Target },
-        { title: "Relatórios", url: "/reports", icon: TrendingUp },
-        { title: "Competitors", url: "/competitors", icon: Monitor },
+        { title: "Dashboard", url: "/PrismaDash", icon: BarChart3 },
         { title: "Alerts", url: "/alerts", icon: AlertTriangle },
+        //{ title: "Leads", url: "/leads", icon: Target },
+        //{ title: "Relatórios", url: "/reports", icon: TrendingUp },
       ]
     : [
         // Store workspace menus - operational view
-        { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
-        { title: "Leads", url: "/leads", icon: Target },
-        { title: "Landing Pages", url: "/landing-pages", icon: Globe },
-        { title: "Ads", url: "/ads", icon: Megaphone },
+        { title: "Dashboard", url: "/StoreDash", icon: BarChart3 },
+        //{ title: "Leads", url: "/leads", icon: Target },
+        //{ title: "Landing Pages", url: "/landing-pages", icon: Globe },
+        //{ title: "Ads", url: "/ads", icon: Megaphone },
+        { title: "Competitors", url: "/competitors", icon: Monitor },
         { title: "Criativos", url: "/creative-library", icon: Image },
         { title: "Analytics", url: "/analytics", icon: TrendingUp },
-        { title: "Mensagens", url: "/messages", icon: MessageSquare },
+        //{ title: "Mensagens", url: "/messages", icon: MessageSquare },
+        { title: "Integrações", url: "/integrations", icon: Key },
       ];
 
   // Global menus (always visible)
@@ -79,7 +74,7 @@ const getMenuItems = (workspaceType: "general" | "store") => {
       items: [
         { title: "Billing", url: "/billing", icon: CreditCard },
         { title: "Upgrade de Plano", url: "/upgrade", icon: Crown },
-        { title: "Créditos Extras", url: "/credits", icon: Lightbulb },
+        //{ title: "Créditos Extras", url: "/credits", icon: Lightbulb },
       ],
     },
     {
@@ -88,8 +83,7 @@ const getMenuItems = (workspaceType: "general" | "store") => {
       items: [
         { title: "Workspaces", url: "/workspaces", icon: Users },
         { title: "Perfil", url: "/profile", icon: User },
-        { title: "Integrações", url: "/integrations", icon: Key },
-      ],
+      ]
     },
   ];
 
@@ -109,17 +103,16 @@ export function AppSidebar() {
   const { dynamicMenus, globalMenus } = getMenuItems(currentWorkspace.type);
 
   return (
-    <Sidebar className="border-r border-sidebar-border">
-      <SidebarHeader className="border-b border-sidebar-border">
+    <Sidebar collapsible="icon" style={{ width: isCollapsed ? 70 : 255 }} >
+      <SidebarHeader>
         {!isCollapsed && (
-          <div className="p-4 pb-0">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-primary rounded-xl flex items-center justify-center shadow-glow">
-                <Zap className="w-4 h-4 text-white" />
+          <div className="p-4 pb-0 flex justify-center">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-auto justify-center">
+                <img src={Logo}></img>
               </div>
               <div>
-                <h2 className="text-lg font-bold text-sidebar-foreground">PrismaID</h2>
-                <p className="text-xs text-sidebar-foreground/60">Multi-Tenant SaaS</p>
+                <h2 className="text-lg font-bold text-to">PrismaID</h2>
               </div>
             </div>
           </div>

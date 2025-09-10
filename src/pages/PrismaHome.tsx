@@ -39,15 +39,7 @@ const kpiData = [
     changeType: "positive" as const,
     icon: CreditCard,
     description: "este mês",
-  },
-  {
-    title: "Créditos WhatsApp",
-    value: "8.000/25.000",
-    change: "32% usado",
-    changeType: "neutral" as const,
-    icon: MessageCircle,
-    description: "disponível",
-  },
+  }
 ];
 
 const quickActions = [
@@ -125,20 +117,20 @@ export default function PrismaHome() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-bold text-foreground mb-2">
-            Bem-vindo de volta! 👋
+            Bem-vindo de volta!
           </h1>
           <p className="text-lg text-muted-foreground">
-            Aqui está um resumo rápido do seu negócio hoje.
+            Aqui está um resumo rápido do seus negócios hoje.
           </p>
         </div>
         <Button className="bg-gradient-primary hover:opacity-90 transition-smooth shadow-glow">
-          <ArrowUpRight className="w-4 h-4 mr-2" />
-          Dashboard Completo
+          <ArrowUpRight className="w-4 h-4" />
+          <span className="hidden sm:inline">Relatorio Completo</span>
         </Button>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
         {kpiData.map((kpi, index) => (
           <GlassCard key={index} {...kpi} glowEffect={index === 0} />
         ))}
@@ -163,7 +155,7 @@ export default function PrismaHome() {
       </div>
 
       {/* Recent Activity & Quick Stats */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 grid-cols-1">
         <Card className="lg:col-span-2 bg-gradient-glass border-border/30 shadow-glass backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="text-foreground flex items-center gap-2">
@@ -202,7 +194,7 @@ export default function PrismaHome() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-glass border-border/30 shadow-glass backdrop-blur-sm">
+       {/*<Card className="bg-gradient-glass border-border/30 shadow-glass backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="text-foreground">Status do Sistema</CardTitle>
             <CardDescription>
@@ -233,7 +225,7 @@ export default function PrismaHome() {
               <span className="text-sm font-medium text-green-400">99.9%</span>
             </div>
           </CardContent>
-        </Card>
+        </Card>*/}
       </div>
     </div>
   );

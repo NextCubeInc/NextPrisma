@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { DateRangePicker } from "./DateRangePicker";
 
 interface DashboardHeaderProps {
   title?: string;
@@ -20,26 +19,22 @@ interface DashboardHeaderProps {
 export function DashboardHeader({ title = "Home" }: DashboardHeaderProps) {
   return (
     <header className="border-b border-border bg-card/30 backdrop-blur supports-[backdrop-filter]:bg-card/30">
-      <div className="flex h-16 items-center justify-between px-6">
+      <div className="flex h-16 items-center justify-between pr-6 pl-10">
         {/* Title and Date Range */}
         <div className="flex items-center gap-6">
-          <div>
-            <h1 className="text-xl font-semibold text-foreground">{title}</h1>
-            <p className="text-sm text-muted-foreground">PrismaID Dashboard</p>
-          </div>
-          <DateRangePicker />
+          <h1 className="text-xl font-semibold text-foreground">{title}</h1>
         </div>
 
         {/* Actions */}
         <div className="flex items-center gap-4">
           {/* Search */}
-          <div className="relative">
+          {/*<div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Buscar leads, lojas..."
               className="pl-10 w-64 bg-background/50 border-border/50"
             />
-          </div>
+          </div>*/}
 
           {/* Quick Create */}
           <DropdownMenu>
@@ -52,15 +47,15 @@ export function DashboardHeader({ title = "Home" }: DashboardHeaderProps) {
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem>
                 <Plus className="w-4 h-4 mr-2" />
-                Novo Lead
+                Novo WorkSpace
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Plus className="w-4 h-4 mr-2" />
-                Nova Landing Page
+                Novo Criativo
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Plus className="w-4 h-4 mr-2" />
-                Nova Campanha
+                Novo Relatorio
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

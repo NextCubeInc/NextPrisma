@@ -73,8 +73,6 @@ const storePerformance = [
     leads: 8420,
     roi: 385,
     revenue: 34500,
-    whatsapp: "12.5k/25k",
-    plan: "Enterprise",
     status: "active",
     growth: "+18%",
   },
@@ -83,8 +81,6 @@ const storePerformance = [
     leads: 6230,
     roi: 298,
     revenue: 28900,
-    whatsapp: "8.2k/15k",
-    plan: "Pro",
     status: "active",
     growth: "+12%",
   },
@@ -93,8 +89,6 @@ const storePerformance = [
     leads: 4890,
     roi: 267,
     revenue: 19800,
-    whatsapp: "5.8k/10k",
-    plan: "Basic",
     status: "active",
     growth: "+8%",
   },
@@ -103,8 +97,6 @@ const storePerformance = [
     leads: 3127,
     roi: 198,
     revenue: 12400,
-    whatsapp: "3.1k/5k",
-    plan: "Basic",
     status: "active",
     growth: "+5%",
   },
@@ -113,19 +105,10 @@ const storePerformance = [
     leads: 1180,
     roi: 156,
     revenue: 5830,
-    whatsapp: "1.2k/5k",
-    plan: "Starter",
     status: "warning",
     growth: "-2%",
   },
 ];
-
-const planColors = {
-  Enterprise: "bg-purple-500/10 text-purple-400 border-purple-500/20",
-  Pro: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  Basic: "bg-green-500/10 text-green-400 border-green-500/20",
-  Starter: "bg-gray-500/10 text-gray-400 border-gray-500/20",
-};
 
 const statusColors = {
   active: "bg-green-500/10 text-green-400 border-green-500/20",
@@ -232,9 +215,6 @@ export default function PrismaDashboard() {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg text-foreground">{store.name}</CardTitle>
-                  <Badge className={planColors[store.plan as keyof typeof planColors]}>
-                    {store.plan}
-                  </Badge>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -255,8 +235,6 @@ export default function PrismaDashboard() {
                     <p className="font-semibold text-foreground">R$ {store.revenue.toLocaleString('pt-BR')}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">WhatsApp</p>
-                    <p className="font-semibold text-muted-foreground text-xs">{store.whatsapp}</p>
                   </div>
                 </div>
                 
@@ -289,8 +267,6 @@ export default function PrismaDashboard() {
                   <TableHead>Leads</TableHead>
                   <TableHead>ROI</TableHead>
                   <TableHead>Faturamento</TableHead>
-                  <TableHead>Créditos</TableHead>
-                  <TableHead>Plano</TableHead>
                   <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
@@ -314,14 +290,6 @@ export default function PrismaDashboard() {
                     </TableCell>
                     <TableCell>
                       <span className="font-medium text-foreground">R$ {store.revenue.toLocaleString('pt-BR')}</span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-sm text-muted-foreground">{store.whatsapp}</span>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={planColors[store.plan as keyof typeof planColors]}>
-                        {store.plan}
-                      </Badge>
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>

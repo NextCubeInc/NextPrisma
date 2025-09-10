@@ -6,19 +6,20 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import PrismaHome from "./pages/PrismaHome";
 import PrismaDashboard from "./pages/PrismaDashboard";
-import Leads from "./pages/Leads";
+import Dashboard from "./pages/Dashboard";
+//import Leads from "./pages/DontUse/Leads";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Competitors from "./pages/Competitors";
 import Alerts from "./pages/Alerts";
-import LandingPages from "./pages/LandingPages";
-import Ads from "./pages/Ads";
+//import LandingPages from "./pages/DontUse/LandingPages";
+//import Ads from "./pages/DontUse/Ads";
 import StoreAnalytics from "./pages/StoreAnalytics";
-import Messages from "./pages/Messages";
+//import Messages from "./pages/DontUse/Messages";
 import Billing from "./pages/Billing";
 import Upgrade from "./pages/Upgrade";
-import Credits from "./pages/Credits";
+//import Credits from "./pages/DontUse/Credits";
 import Workspaces from "./pages/Workspaces";
 import Profile from "./pages/Profile";
 import Integrations from "./pages/Integrations";
@@ -38,14 +39,14 @@ const App = () => (
               <PrismaHome />
             </DashboardLayout>
           } />
-          <Route path="/dashboard" element={
-            <DashboardLayout title="Dashboard">
+          <Route path="/PrismaDash" element={
+            <DashboardLayout title="PrismaDash">
               <PrismaDashboard />
             </DashboardLayout>
           } />
-          <Route path="/leads" element={
-            <DashboardLayout title="Leads">
-              <Leads />
+          <Route path="/StoreDash" element={
+            <DashboardLayout title="StoreDash">
+              <Dashboard />
             </DashboardLayout>
           } />
           <Route path="/reports" element={
@@ -68,24 +69,9 @@ const App = () => (
               <Alerts />
             </DashboardLayout>
           } />
-          <Route path="/landing-pages" element={
-            <DashboardLayout title="Landing Pages">
-              <LandingPages />
-            </DashboardLayout>
-          } />
-          <Route path="/ads" element={
-            <DashboardLayout title="Campanhas Publicitárias">
-              <Ads />
-            </DashboardLayout>
-          } />
           <Route path="/analytics" element={
             <DashboardLayout title="Analytics da Loja">
               <StoreAnalytics />
-            </DashboardLayout>
-          } />
-          <Route path="/messages" element={
-            <DashboardLayout title="Central de Mensagens">
-              <Messages />
             </DashboardLayout>
           } />
           <Route path="/billing" element={
@@ -96,11 +82,6 @@ const App = () => (
           <Route path="/upgrade" element={
             <DashboardLayout title="Upgrade de Plano">
               <Upgrade />
-            </DashboardLayout>
-          } />
-          <Route path="/credits" element={
-            <DashboardLayout title="Créditos Extras">
-              <Credits />
             </DashboardLayout>
           } />
           <Route path="/workspaces" element={
