@@ -1,6 +1,8 @@
 import { 
-  Home,
-  Zap, 
+  Home, 
+  Target, 
+  Megaphone, 
+  Globe, 
   BarChart3, 
   TrendingUp, 
   CreditCard,
@@ -9,15 +11,22 @@ import {
   User,
   Users,
   Key,
-  ChevronDown,
   AlertTriangle,
+  MessageSquare,
+  Lightbulb,
   Monitor,
-  Image
+  Facebook,
+  Search,
+  Music,
+  ChevronRight,
+  Lock,
+  Building2,
+  FileText,
+  Zap
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
-import { WorkspaceSelector } from "./WorkspaceSelector";
 import {
   Sidebar,
   SidebarContent,
@@ -33,201 +42,288 @@ import {
   useSidebar,
   SidebarHeader,
   SidebarFooter,
-  SidebarTrigger
+  SidebarTrigger,
+  SidebarRail
 } from "@/components/ui/sidebar";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import Logo from "@/assets/PrismaLogo.png"
+import { NavUser } from "./components/NavUser";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
-// Dynamic menu items based on workspace type
-const getMenuItems = (workspaceType: "general" | "store") => {
-  const dynamicMenus = workspaceType === "general" 
-    ? [
-        // General workspace menus - consolidated view
+// Ícones para cada tipo de integração
+const getIntegrationIcon = (type: string) => {
+  switch (type.toLowerCase()) {
+    case 'meta':
+    case 'facebook':
+      return Facebook;
+    case 'google':
+    case 'google_ads':
+      return Search;
+    case 'tiktok':
+    case 'tiktok_ads':
+      return Music;
+    default:
+      return Megaphone;
+  }
+};
+
+// Menu items dinâmicos baseados no cliente ativo
+const getMenuItems = (
+  activeClient: any, 
+  integrations: any[], 
+  userPlan: any,
+  checkPlanLimit: any
+) => {
+  // Se não há cliente ativo, mostra apenas menu geral
+  if (!activeClient) {
+    return {
+      generalMenus: [
         { title: "Home", url: "/", icon: Home },
-        { title: "Dashboard", url: "/PrismaDash", icon: BarChart3 },
-        { title: "Alerts", url: "/alerts", icon: AlertTriangle },
-        //{ title: "Leads", url: "/leads", icon: Target },
-        //{ title: "Relatórios", url: "/reports", icon: TrendingUp },
-      ]
-    : [
-        // Store workspace menus - operational view
-        { title: "Dashboard", url: "/StoreDash", icon: BarChart3 },
-        //{ title: "Leads", url: "/leads", icon: Target },
-        //{ title: "Landing Pages", url: "/landing-pages", icon: Globe },
-        //{ title: "Ads", url: "/ads", icon: Megaphone },
-        { title: "Competitors", url: "/competitors", icon: Monitor },
-        { title: "Criativos", url: "/creative-library", icon: Image },
-        { title: "Analytics", url: "/analytics", icon: TrendingUp },
-        //{ title: "Mensagens", url: "/messages", icon: MessageSquare },
-        { title: "Integrações", url: "/integrations", icon: Key },
-      ];
-
-  // Global menus (always visible)
-  const globalMenus = [
-    {
-      title: "Finanças",
-      icon: CreditCard,
-      items: [
-        { title: "Billing", url: "/billing", icon: CreditCard },
-        { title: "Upgrade de Plano", url: "/upgrade", icon: Crown },
-        //{ title: "Créditos Extras", url: "/credits", icon: Lightbulb },
+        //{ title: "Clientes", url: "/clientes", icon: Building2 },
       ],
-    },
-    {
-      title: "Configurações",
-      icon: Settings,
-      items: [
-        { title: "Workspaces", url: "/workspaces", icon: Users },
-        { title: "Perfil", url: "/profile", icon: User },
-      ]
-    },
+      integrationMenus: []
+    };
+  }
+
+  // Menus do workspace ativo (cliente selecionado)
+  const workspaceMenus = [
+    { title: "Dashboard", url: `/client/${activeClient.id}/dashboard`, icon: BarChart3 },
+    { title: "Gerenciador de Anúncios", url: `/client/${activeClient.id}/ads-manager`, icon: Target },
+    { title: "Relatórios", url: `/client/${activeClient.id}/reports`, icon: FileText },
+    { title: "Integrações", url: `/client/${activeClient.id}/integrations`, icon: Zap },
+    { title: "Alertas", url: `/client/${activeClient.id}/alerts`, icon: AlertTriangle },
   ];
 
-  return { dynamicMenus, globalMenus };
+  // Menus de integração baseados nas contas do cliente
+  const integrationMenus = integrations.map(integration => ({
+    title: integration.integration_name || integration.integration_type,
+    url: `/client/${activeClient.id}/integration/${integration.id}`,
+    icon: getIntegrationIcon(integration.integration_type),
+    type: integration.integration_type,
+    status: integration.status
+  }));
+
+  return { 
+    workspaceMenus, 
+    integrationMenus, 
+    generalMenus: []
+  };
 };
 
 export function AppSidebar() {
-  const { state } = useSidebar();
+  const { state, open } = useSidebar();
   const location = useLocation();
-  const { currentWorkspace } = useWorkspace();
-  const isCollapsed = state === "collapsed";
+  const { 
+    activeClient, 
+    integrations, 
+    userPlan, 
+    checkPlanLimit,
+    isInClientWorkspace 
+  } = useWorkspace();
 
   const isActive = (path: string) => location.pathname === path;
   const hasActiveChild = (items: any[]) => 
     items?.some(item => isActive(item.url));
 
-  const { dynamicMenus, globalMenus } = getMenuItems(currentWorkspace.type);
+  const { generalMenus, workspaceMenus, integrationMenus } = getMenuItems(
+    activeClient, 
+    integrations, 
+    userPlan, 
+    checkPlanLimit
+  );
+
+  const handleUpgradeClick = async () => {
+    toast.info("Redirecionando para upgrade de plano...");
+  };
 
   return (
-    <Sidebar collapsible="icon" style={{ width: isCollapsed ? 70 : 255 }} >
-      <SidebarHeader>
-        {!isCollapsed && (
-          <div className="p-4 pb-0 flex justify-center">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-auto justify-center">
-                <img src={Logo}></img>
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-to">PrismaID</h2>
-              </div>
-            </div>
+    <Sidebar collapsible="icon" >
+      {/*Header*/}
+     { open ? (
+     <SidebarHeader className="flex items-start justify-center border-b-[1px]">
+      <div>
+        <div className="flex items-center gap-4">
+          <div className=" h-auto w-[39px] flex items-center justify-center">
+            <img src="src/assets/PrismaLogod.png" alt="" />
           </div>
-        )}
-        <WorkspaceSelector />
-      </SidebarHeader>
+          <div>
+            <h1 className="text-lg font-bold text-sidebar-foreground text-[40px]">PrismaID</h1>
+          </div>
+        </div>
+      </div>
+      </SidebarHeader >
+      ):(
+      <SidebarHeader className="flex items-start justify-center border-b-[1px] h-auto pl-1">
+      <div>
+        <div className="">
+          <div className="w-[39px] flex items-center">
+            <img src="src/assets/PrismaLogod.png" alt=""/>
+          </div>
+        </div>
+      </div>
+      </SidebarHeader >
+      )}
 
+      {/*CONTENT*/}
       <SidebarContent>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentWorkspace.id}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.2 }}
-          >
-            {/* Dynamic Menu Section */}
-            <SidebarGroup>
-              <SidebarGroupLabel className="text-xs font-medium text-sidebar-foreground/60 mb-2">
-                {currentWorkspace.type === "general" ? "VISÃO GERAL" : "OPERAÇÕES DA LOJA"}
-              </SidebarGroupLabel>
+        {/* Seletor de Cliente */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink to="/clientes">
+                    <Building2 className="h-4 w-4" />
+                    <span>{activeClient ? activeClient.name : "Selecionar Cliente"}</span>
+                    {activeClient && (
+                      <Badge variant="secondary" className="ml-auto">
+                        Ativo
+                      </Badge>
+                    )}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Menu Geral (quando não há cliente ativo) */}
+        {!isInClientWorkspace && generalMenus.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Navegação</SidebarGroupLabel>
+            <SidebarGroupContent>
               <SidebarMenu>
-                {dynamicMenus.map((item) => (
+                {generalMenus.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <NavLink
-                        to={item.url}
-                        className={({ isActive }) =>
-                          `flex items-center gap-3 w-full p-3 rounded-lg transition-all duration-200 ${
-                            isActive
-                              ? "bg-gradient-primary text-white shadow-glow"
-                              : "hover:bg-glass-card hover:border-primary/20 border border-transparent"
-                          }`
-                        }
-                      >
-                        <item.icon className="w-4 h-4" />
-                        {!isCollapsed && <span className="font-medium">{item.title}</span>}
+                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                      <NavLink to={item.url}>
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>
-            </SidebarGroup>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
-            {/* Global Menu Section */}
-            <SidebarGroup className="mt-6">
-              <SidebarGroupLabel className="text-xs font-medium text-sidebar-foreground/60 mb-2">
-                CONFIGURAÇÕES GLOBAIS
-              </SidebarGroupLabel>
+        {/* Menu do Workspace Ativo */}
+        {isInClientWorkspace && workspaceMenus && workspaceMenus.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>
+              {activeClient?.name || "Cliente"}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
               <SidebarMenu>
-                {globalMenus.map((item) => {
-                  const hasActive = hasActiveChild(item.items);
-                  return (
-                    <Collapsible key={item.title} defaultOpen={hasActive}>
-                      <SidebarMenuItem>
-                        <CollapsibleTrigger asChild>
-                          <SidebarMenuButton
-                            className={`w-full justify-between p-3 rounded-lg transition-all duration-200 ${
-                              hasActive 
-                                ? "bg-glass-card border-primary/20 text-primary" 
-                                : "hover:bg-glass-card hover:border-primary/20 border border-transparent"
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <item.icon className="w-4 h-4" />
-                              {!isCollapsed && <span className="font-medium">{item.title}</span>}
-                            </div>
-                            {!isCollapsed && (
-                              <motion.div
-                                animate={{ rotate: hasActive ? 180 : 0 }}
-                                transition={{ duration: 0.2 }}
-                              >
-                                <ChevronDown className="w-4 h-4" />
-                              </motion.div>
-                            )}
-                          </SidebarMenuButton>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <SidebarMenuSub className="ml-4 mt-2">
-                            {item.items.map((subItem) => (
-                              <SidebarMenuSubItem key={subItem.title}>
-                                <SidebarMenuSubButton asChild>
-                                  <NavLink
-                                    to={subItem.url}
-                                    className={({ isActive }) =>
-                                      `flex items-center gap-3 w-full p-2 rounded-md transition-all duration-200 ${
-                                        isActive
-                                          ? "bg-primary text-primary-foreground shadow-sm"
-                                          : "hover:bg-accent/50 text-sidebar-foreground/80"
-                                      }`
-                                    }
-                                  >
-                                    <subItem.icon className="w-3 h-3" />
-                                    {!isCollapsed && <span className="text-sm">{subItem.title}</span>}
-                                  </NavLink>
-                                </SidebarMenuSubButton>
-                              </SidebarMenuSubItem>
-                            ))}
-                          </SidebarMenuSub>
-                        </CollapsibleContent>
-                      </SidebarMenuItem>
-                    </Collapsible>
-                  );
-                })}
+                {workspaceMenus.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                      <NavLink to={item.url}>
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
               </SidebarMenu>
-            </SidebarGroup>
-          </motion.div>
-        </AnimatePresence>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {/* Menu de Integrações */}
+        {isInClientWorkspace && integrationMenus && integrationMenus.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Integrações</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {integrationMenus.map((integration) => (
+                  <SidebarMenuItem key={integration.title}>
+                    <SidebarMenuButton asChild isActive={isActive(integration.url)}>
+                      <NavLink to={integration.url}>
+                        <integration.icon className="h-4 w-4" />
+                        <span>{integration.title}</span>
+                        <Badge 
+                          variant={integration.status === 'active' ? 'default' : 'secondary'}
+                          className="ml-auto"
+                        >
+                          {integration.status === 'active' ? 'Ativo' : 'Inativo'}
+                        </Badge>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {/* Botão para adicionar nova integração */}
+        {isInClientWorkspace && (
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton 
+                    onClick={async () => {
+                      const result = await checkPlanLimit('create_account');
+                      if (!result.allowed) {
+                        if (result.upgrade_required) {
+                          toast.error("Limite de contas atingido. Faça upgrade do seu plano.");
+                        } else {
+                          toast.error(result.error || "Não foi possível adicionar nova conta.");
+                        }
+                        return;
+                      }
+                      toast.info("Redirecionando para adicionar nova integração...");
+                    }}
+                  >
+                    <Zap className="h-4 w-4" />
+                    <span>Nova Integração</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {/* Informações do Plano */}
+        {userPlan && (
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <div className="px-3 py-2 text-xs text-muted-foreground">
+                <div className="flex items-center justify-between">
+                  <span>Plano: {userPlan.name}</span>
+                  {userPlan.name !== 'Business' && (
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={handleUpgradeClick}
+                      className="h-6 px-2 text-xs"
+                    >
+                      Upgrade
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border p-4">
-        <div className="flex items-center justify-center">
-          <SidebarTrigger className="w-8 h-8" />
-        </div>
+      {/*Footer*/}
+      <SidebarFooter className="flex row-2">
+        <NavUser />
       </SidebarFooter>
+
+
+      <SidebarRail/>
     </Sidebar>
   );
 }
