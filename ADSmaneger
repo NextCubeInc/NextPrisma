@@ -1,403 +1,107 @@
-Objetivo:
-Criar no stack **Supabase + Next.js (React)** a funcionalidade completa de **Gerenciamento de Anúncios (Meta Ads)** com telas idênticas em comportamento ao Ads Manager. Foco nas flows de **criar/editar/duplicar/pause/ativar**: Campanha → Conjunto de Anúncios → Anúncio. Deve usar o modelo de **workspace** (cliente selecionado) e respeitar limites de plano (RPC check_plan_limits / endpoint check-limit). Aproveite o banco existente; só proponha mudanças quando estritamente necessárias.
-
-REQUISITOS GERAIS
-- Usuário seleciona um CLIENTE (workspace ativo). Todas as ações são vinculadas ao cliente ativo.
-- A UI tem 3 tabs principais: **Campanhas | Conjuntos de Anúncios | Anúncios**.
-  - Ao selecionar uma campanha, a tab "Conjuntos de Anúncios" exibe somente os conjuntos daquela campanha; a tab "Anúncios" exibe somente anúncios pertencentes aos conjuntos dessa campanha.
-  - Ao selecionar um conjunto de anúncios, a tab "Anúncios" exibe só anúncios daquele conjunto.
-- A tela deve suportar: busca, filtros (status, veiculação, recomendações), ordenação, colunas configuráveis, paginação e export.
-- Antes de criar campanha/conjunto/anúncio, chamar endpoint `/check-limit?action=...` que usa RPC `check_plan_limits`. Se `403`, bloquear e mostrar modal com incentivo ao upgrade.
-- Estados de item: `draft` | `syncing` | `synced` | `failed`. Exibir badge de estado e histórico/erro no detalhe.
-
-MODELAGEM / SCHEMA (exemplos SQL para o Supabase)
-- Se já existir algo similar, adapte. Se não, criar:
-
-```sql
--- campaigns
-create table if not exists ads_campaigns (
-  id uuid default gen_random_uuid() primary key,
-  client_id uuid not null references clients(id),
-  account_id text not null, -- account_id do Meta (act_xxx)
-  meta_id text, -- id da campanha no Meta
-  name text not null,
-  objective text,
-  status text default 'draft', -- draft, syncing, active, paused, archived
-  bidding_strategy text,
-  daily_budget numeric,
-  lifetime_budget numeric,
-  start_time timestamptz,
-  end_time timestamptz,
-  settings jsonb, -- campos adicionais (attribution, buying_type etc)
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
-);
-
--- ad sets (conjuntos)
-create table if not exists ads_sets (
-  id uuid default gen_random_uuid() primary key,
-  campaign_id uuid not null references ads_campaigns(id) on delete cascade,
-  meta_id text,
-  name text not null,
-  status text default 'draft',
-  optimization_goal text,
-  billing_event text,
-  bid_amount numeric,
-  daily_budget numeric,
-  lifetime_budget numeric,
-  start_time timestamptz,
-  end_time timestamptz,
-  targeting jsonb,
-  placements jsonb,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
-);
-
--- ads (anúncios)
-create table if not exists ads (
-  id uuid default gen_random_uuid() primary key,
-  adset_id uuid not null references ads_sets(id) on delete cascade,
-  meta_id text,
-  name text not null,
-  status text default 'draft',
-  creative jsonb,
-  format text,
-  metrics jsonb, -- cached metrics (impressions, clicks, spend, ctr, cpc)
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
-);
-
--- creatives (biblioteca de criativos)
-create table if not exists ad_creatives (
-  id uuid default gen_random_uuid() primary key,
-  client_id uuid not null,
-  name text,
-  type text, -- image, video, carousel
-  meta_creative_id text,
-  storage_path text, -- local storage (Supabase Storage) path
-  metadata jsonb,
-  created_at timestamptz default now()
-);
-
--- metrics (time series, opcional)
-create table if not exists ads_metrics_campaigns (
-  id uuid default gen_random_uuid() primary key,
-  campaign_id uuid references ads_campaigns(id),
-  date date,
-  impressions bigint,
-  clicks bigint,
-  spend numeric,
-  installs bigint,
-  created_at timestamptz default now()
-);
--- similar tables para ad sets e ads
-RLS / PERMISSÕES
-
-Habilitar RLS para tables ads_campaigns, ads_sets, ads, ad_creatives:
-
-owner do client only (ex: JOIN clients.owner_id = auth.uid()).
-
-RLS para subscriptions já existente: garantir que apenas dono do user_id lê/atualiza.
-
-RPC / FUNÇÕES E ENDPOINTS
-
-RPC no DB: check_plan_limits(user_id uuid, action text) returns boolean — já existente. Usar para validação.
-
-Edge Function / API Routes:
-
-POST /api/check-limit -> chama RPC e retorna 200/403.
-
-POST /api/meta/create-campaign -> verifica limite, valida payload, cria registro local (status draft or syncing), enfileira job para sync com Meta (opcionalmente faz sync sync/blocking), retorna o registro local.
-
-POST /api/meta/create-adset -> idem, require campaign_id selected.
-
-POST /api/meta/create-ad -> idem, require adset_id selected.
-
-POST /api/meta/sync -> endpoint para forçar sync; ou usar crons.
-
-GET /api/meta/sync-status?campaign_id=... -> retornar estado/sincronização.
-
-FLUXO DETALHADO — CRIAR CAMPANHA (UI + Backend)
-
-UI: Iniciar
-
-Usuário clica Criar > Campanha.
-
-Modal / sidepanel abre com formulário:
-
-Nome da campanha (required)
-
-Objetivo (choices: TRAFFIC, CONVERSIONS, AWARENESS, etc)
-
-Estratégia de lance (bid strategy)
-
-Orçamento (daily vs lifetime) (numeric)
-
-Datas (start_time, end_time)
-
-Account (select conta Meta vinculada ao cliente) — obrigatório
-
-Observações / tags / settings (json)
-
-Validações client-side: campos obrigatórios, valores numéricos, datas coerentes.
-
-Verificação de limite
-
-Antes de submeter, chamar POST /api/check-limit com { user_id, action: "create_campaign" }.
-
-Se 403 -> mostrar modal de upgrade e abortar.
-
-Salvar local
-
-Criar registro na tabela ads_campaigns com status='draft' e salvar account_id e client_id.
-
-Retornar o registro ao front e mostrar loading/progress.
-
-Sincronizar com Meta (recomendado: background job)
-
-Opção A: sync síncrono:
-
-Backend faz chamada para Meta: POST /act_{account_id}/campaigns com fields: name, objective, status, buying_type, special_ad_categories, campaign_budget_optimization (se aplicável).
-
-Se sucesso: atualizar ads_campaigns.meta_id = resposta.id e status='synced' or active.
-
-Se erro: status='failed' e salvar last_error.
-
-Opção B: enqueue job (recomendado):
-
-Inserir job no jobs table ou em fila (Supabase pg_notify / external worker). Worker processa a criação na Meta e atualiza ads_campaigns.
-
-Vantagem: evitar timeouts e permitir retries.
-
-UX
-
-Enquanto status != synced, mostrar badge Sincronizando e oferecer botão Forçar Sincronização.
-
-Mostrar logs/erro se failed.
-
-FLUXO DETALHADO — CRIAR CONJUNTO DE ANÚNCIOS (ADSET)
-
-Pré-requisitos
-
-Deve estar selecionada uma campaign (se não, pedir para selecionar).
-
-Validar check-limit?action=create_account se você considerar adset como "criar conta" ou create_adset se contar separado.
-
-Formulário
-
-Nome do ad set
-
-Otimização (optimization_goal)
-
-Evento de cobrança (billing_event)
-
-Bid / bid_amount
-
-Orçamento: daily / lifetime
-
-Datas (start/end)
-
-Targeting (json): age_range, genders, geo_locations, interests, custom_audiences, lookalike specs — UI com assistente (selectagem por público).
-
-Placements (automatic ou manual)
-
-Pixel / events (para conversões)
-
-Status inicial: paused/draft
-
-Salvar local -> Sincronizar
-
-Mesma lógica de campanha: salvar ads_sets com status='draft', enfileirar job p/ Meta: POST /act_{account_id}/adsets com campaign_id=meta_campaign_id e fields (targeting, budget, schedule).
-
-No sucesso: salvar meta_id e status='synced'.
-
-Regras
-
-Se campaign ainda não estiver sincronizada na Meta, a criação do adset pode depender de primeiro sincronizar a campanha (ou o worker pode criar a campanha automaticamente).
-
-FLUXO DETALHADO — CRIAR ANÚNCIO
-
-Pré-requisitos
-
-Um adset selecionado e, preferencialmente, já sincronizado na Meta (tem meta_id).
-
-Formulário
-
-Nome do anúncio
-
-Selecionar creative da biblioteca (ou upload)
-
-Texto principal / headline / description
-
-Destination URL
-
-Call-to-action
-
-Tracking / UTM params
-
-Status inicial (paused/draft)
-
-Upload de criativos
-
-Upload para Supabase Storage, depois enviar para Meta como asset (images/videos) via API (ou enviar diretamente da storage).
-
-Salvar ad_creatives com meta_creative_id.
-
-Salvar local e sincronizar
-
-Criar ads com status='draft'. Enfileirar job POST /act_{account_id}/ads (ou usar creatives endpoints primeiro) para criar o ad na Meta. No sucesso salvar meta_id.
-
-COMPORTAMENTOS DA UI ENTRE ABAS
-
-Seleção persistente:
-
-Ao clicar em uma campanha, essa campanha vira selectedCampaign no contexto da página.
-
-Conjuntos e Anúncios auto-filtram com base nesse selectedCampaign.
-
-Ao clicar em um adset, selectedAdSet filtra os anúncios.
-
-Ações rápidas:
-
-Botões contextualizados: Criar Conjunto dentro da tab Conjuntos cria já com campaign_id preenchido.
-
-Criar Anúncio dentro da tab Anúncios pode criar com adset_id já preenchido (se selecionado).
-
-Bulk actions:
-
-Selecionar múltiplas campanhas/adsets/ads para Pause, Resume, Duplicate, Export.
-
-SINCRONIZAÇÃO E METRICS
-
-Criar jobs sincronizadores:
-
-Cron job (ex: every 5–15 min) para buscar métricas via Marketing API: impressions, clicks, spend, ctr, cpc por day.
-
-Salvar em tables ads_metrics_* para consultas rápidas e geração de dashboard.
-
-Cache e TTL:
-
-Cache em DB e limpar/atualizar baseado em last_synced_at.
-
-Endpoint para métricas:
-
-GET /api/meta/metrics?entity=campaign&entity_id=...&range=30d
-
-ERROS, RETRIES E ROLLBACK
-
-Uso de transactions e filas:
-
-Ao criar local + chamar Meta: preferir transação local + enqueue job. Somente ao job confirmar sucesso atualize meta_id.
-
-Retries com backoff exponencial. Logar last_error, attempts.
-
-Se falhar criação na Meta depois do local create: deixar status=failed e permitir retry.
-
-VALIDAÇÕES IMPORTANTES
-
-Tokens: validar access_token / renovar via refresh_token antes das chamadas.
-
-Verificar limites via check_plan_limits antes de criar (focar em server-side enforcement).
-
-Validações de creative: formatos aceitos, limites de tamanho, duração de vídeo.
-
-Budget: no mínimo e máximo por política da Meta.
-
-Público: se targeting vazio, exibir aviso (público amplo).
-
-AUDIT LOG e PERMISSIONS
-
-Registrar ações de quem criou/editou (user_id, timestamp, action).
-
-Somente usuários com permissão (owner ou collaborator) podem editar/excluir.
-
-ENTREGÁVEIS (o que Trae deve gerar):
-
-Frontend:
-
-Páginas/telas React: CampaignsList, CampaignDetail (with tabs), AdSetList, AdSetDetail, AdsList, AdsDetail, CreateCampaignModal, CreateAdSetModal, CreateAdModal.
-
-Workspace context integration: selectedClient, selectedCampaign, selectedAdSet.
-
-Componentes: DataTable (com colunas configuráveis), Tabs, Sidepanel modal forms, Toasts/modals de erro.
-
-Backend:
-
-Edge Functions / API routes: check-limit, create-campaign, create-adset, create-ad, sync endpoints.
-
-Jobs/Worker: sync with Meta API (create/update metrics).
-
-Database:
-
-Tables list acima (ads_campaigns, ads_sets, ads, ad_creatives, ads_metrics_*), RLS policies e RPC check_plan_limits já existente.
-
-Docs:
-
-Exemplos de payloads para chamadas à Meta (quais fields usar).
-
-Especificação de estados e lifecycle (draft→syncing→synced→failed).
-
-Testes:
-
-End-to-end flows: criar campanha → criar adset → criar ad → verificar sync e métricas.
-
-Simular falhas de API e retries.
-
-EXEMPLOS DE PAYLOAD (Meta API)
-
-Criar campanha (POST /vX.0/act_{account_id}/campaigns):
-
-json
-Copy code
-{
-  "name": "Campanha de conversão - Natal",
-  "objective": "CONVERSIONS",
-  "status": "PAUSED",
-  "special_ad_categories": []
-}
-Criar adset:
-
-json
-Copy code
-{
-  "name": "AdSet - Público Lookalike",
-  "optimization_goal": "LINK_CLICKS",
-  "billing_event": "IMPRESSIONS",
-  "bid_amount": 1000,
-  "daily_budget": 2000,
-  "campaign_id": "606...123",
-  "start_time":"2025-10-10T00:00:00-0300",
-  "end_time":"2025-10-20T00:00:00-0300",
-  "targeting": { "geo_locations": {...}, "age_min":18, "age_max":65 }
-}
-Criar ad (exige creative_id):
-
-json
-Copy code
-{
-  "name": "Anúncio - Criativo 1",
-  "adset_id": "238...345",
-  "creative": { "creative_id": "123456789" },
-  "status": "PAUSED"
-}
-CRITÉRIOS DE ACEITAÇÃO
-
-Selecionar campanha filtra conjuntos e anúncios corretamente.
-
-Criar campanha/adset/ad salva local e tenta sincronizar com a Meta; exibir estado correto.
-
-Check-limit bloqueia criação quando plano atingido (front + backend).
-
-Métricas sincronizadas e exibidas (impressões, cliques, spend).
-
-RLS garante que só donos vejam/editem recursos.
-
-Upload de criativos integrado com Supabase Storage e com envio à Meta.
-
-OBSERVAÇÕES FINAIS
-
-Recomendo usar fila/worker para operações na Meta para evitar timeouts e centralizar retries.
-
-Mantenha logs detalhados (last_error, attempts) para facilitar suporte.
-
-Faça UI modular para reutilizar para Google Ads / TikTok Ads (mesmo modelo, campos específicos por plataforma).
+﻿
+chunk-W6L2VRDA.js?v=e4742878:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+react-router-dom.js?v=e4742878:4393 ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+react-router-dom.js?v=e4742878:4393 ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+2
+MetaAdsPage.tsx?t=1759426644251:2711 Uncaught ReferenceError: AlertDialog is not defined
+    at MetaAdsPage (MetaAdsPage.tsx?t=1759426644251:2711:71)
+chunk-W6L2VRDA.js?v=e4742878:14032 The above error occurred in the <MetaAdsPage> component:
+
+    at MetaAdsPage (http://localhost:5173/src/pages/ads/MetaAdsPage.tsx?t=1759426644251:198:28)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e4742878:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e4742878:4558:5)
+    at AdsManager (http://localhost:5173/src/pages/AdsManager.tsx:30:38)
+    at main
+    at div
+    at div
+    at div
+    at Provider (http://localhost:5173/node_modules/.vite/deps/chunk-O2VDSSQ6.js?v=e4742878:38:15)
+    at TooltipProvider (http://localhost:5173/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=e4742878:65:5)
+    at http://localhost:5173/src/components/ui/sidebar.tsx:50:72
+    at WorkspaceProvider (http://localhost:5173/src/contexts/WorkspaceContext.tsx:26:37)
+    at DashboardLayout (http://localhost:5173/src/components/layout/DashboardLayout.tsx:27:35)
+    at ProtectedRoute (http://localhost:5173/src/components/auth/ProtectedRoute.tsx:26:34)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e4742878:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e4742878:4558:5)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e4742878:4501:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e4742878:5247:5)
+    at Provider (http://localhost:5173/node_modules/.vite/deps/chunk-O2VDSSQ6.js?v=e4742878:38:15)
+    at TooltipProvider (http://localhost:5173/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=e4742878:65:5)
+    at WorkspaceProvider (http://localhost:5173/src/contexts/WorkspaceContext.tsx:26:37)
+    at AuthProvider (http://localhost:5173/src/contexts/AuthContext.tsx:34:32)
+    at QueryClientProvider (http://localhost:5173/node_modules/.vite/deps/@tanstack_react-query.js?v=e4742878:2934:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+MetaAdsPage.tsx?t=1759426644251:2711 Uncaught (in promise) ReferenceError: AlertDialog is not defined
+    at MetaAdsPage (MetaAdsPage.tsx?t=1759426644251:2711:71)
+2
+MetaAdsPage.tsx?t=1759426644499:2711 Uncaught ReferenceError: AlertDialog is not defined
+    at MetaAdsPage (MetaAdsPage.tsx?t=1759426644499:2711:71)
+chunk-W6L2VRDA.js?v=e4742878:14032 The above error occurred in the <MetaAdsPage> component:
+
+    at MetaAdsPage (http://localhost:5173/src/pages/ads/MetaAdsPage.tsx?t=1759426644499:198:28)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e4742878:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e4742878:4558:5)
+    at AdsManager (http://localhost:5173/src/pages/AdsManager.tsx:30:38)
+    at main
+    at div
+    at div
+    at div
+    at Provider (http://localhost:5173/node_modules/.vite/deps/chunk-O2VDSSQ6.js?v=e4742878:38:15)
+    at TooltipProvider (http://localhost:5173/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=e4742878:65:5)
+    at http://localhost:5173/src/components/ui/sidebar.tsx:50:72
+    at WorkspaceProvider (http://localhost:5173/src/contexts/WorkspaceContext.tsx:26:37)
+    at DashboardLayout (http://localhost:5173/src/components/layout/DashboardLayout.tsx:27:35)
+    at ProtectedRoute (http://localhost:5173/src/components/auth/ProtectedRoute.tsx:26:34)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e4742878:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e4742878:4558:5)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e4742878:4501:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e4742878:5247:5)
+    at Provider (http://localhost:5173/node_modules/.vite/deps/chunk-O2VDSSQ6.js?v=e4742878:38:15)
+    at TooltipProvider (http://localhost:5173/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=e4742878:65:5)
+    at WorkspaceProvider (http://localhost:5173/src/contexts/WorkspaceContext.tsx:26:37)
+    at AuthProvider (http://localhost:5173/src/contexts/AuthContext.tsx:34:32)
+    at QueryClientProvider (http://localhost:5173/node_modules/.vite/deps/@tanstack_react-query.js?v=e4742878:2934:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+chunk-W6L2VRDA.js?v=e4742878:19413 Uncaught ReferenceError: AlertDialog is not defined
+    at MetaAdsPage (MetaAdsPage.tsx?t=1759426644499:2711:71)
+2
+MetaAdsPage.tsx:984 Uncaught ReferenceError: cn is not defined
+    at MetaAdsPage (MetaAdsPage.tsx:984:48)
+chunk-W6L2VRDA.js?v=e4742878:14032 The above error occurred in the <MetaAdsPage> component:
+
+    at MetaAdsPage (http://localhost:5173/src/pages/ads/MetaAdsPage.tsx?t=1759426718144:199:28)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e4742878:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e4742878:4558:5)
+    at AdsManager (http://localhost:5173/src/pages/AdsManager.tsx:30:38)
+    at main
+    at div
+    at div
+    at div
+    at Provider (http://localhost:5173/node_modules/.vite/deps/chunk-O2VDSSQ6.js?v=e4742878:38:15)
+    at TooltipProvider (http://localhost:5173/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=e4742878:65:5)
+    at http://localhost:5173/src/components/ui/sidebar.tsx:50:72
+    at WorkspaceProvider (http://localhost:5173/src/contexts/WorkspaceContext.tsx:26:37)
+    at DashboardLayout (http://localhost:5173/src/components/layout/DashboardLayout.tsx:27:35)
+    at ProtectedRoute (http://localhost:5173/src/components/auth/ProtectedRoute.tsx:26:34)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e4742878:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e4742878:4558:5)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e4742878:4501:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=e4742878:5247:5)
+    at Provider (http://localhost:5173/node_modules/.vite/deps/chunk-O2VDSSQ6.js?v=e4742878:38:15)
+    at TooltipProvider (http://localhost:5173/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=e4742878:65:5)
+    at WorkspaceProvider (http://localhost:5173/src/contexts/WorkspaceContext.tsx:26:37)
+    at AuthProvider (http://localhost:5173/src/contexts/AuthContext.tsx:34:32)
+    at QueryClientProvider (http://localhost:5173/node_modules/.vite/deps/@tanstack_react-query.js?v=e4742878:2934:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError	@	chunk-W6L2VRDA.js?v=e4742878:14032
+chunk-W6L2VRDA.js?v=e4742878:9129 Uncaught ReferenceError: cn is not defined
+    at MetaAdsPage (MetaAdsPage.tsx:984:48)

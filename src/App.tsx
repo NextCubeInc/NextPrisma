@@ -64,7 +64,7 @@ const App = () => (
                   </DashboardLayout>
                 </ProtectedRoute>
               } />
-              <Route path="/client/:clientId/ads-manager" element={
+              <Route path="/client/:clientId/ads-manager/*" element={
                 <ProtectedRoute>
                   <DashboardLayout title="Gerenciador de Anúncios">
                     <AdsManager />

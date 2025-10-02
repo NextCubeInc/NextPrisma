@@ -93,7 +93,9 @@ const getMenuItems = (
   // Menus do workspace ativo (cliente selecionado)
   const workspaceMenus = [
     { title: "Dashboard", url: `/client/${activeClient.id}/dashboard`, icon: BarChart3 },
-    { title: "Gerenciador de Anúncios", url: `/client/${activeClient.id}/ads-manager`, icon: Target },
+    { title: "Meta", url: `/client/${activeClient.id}/ads-manager/meta/campaigns`, icon: Facebook },
+    { title: "Google ADS", url: `/client/${activeClient.id}/ads-manager/google/campaigns`, icon: Search },
+    { title: "TikTok ADS", url: `/client/${activeClient.id}/ads-manager/tiktok/campaigns`, icon: Music },
     { title: "Relatórios", url: `/client/${activeClient.id}/reports`, icon: FileText },
     { title: "Integrações", url: `/client/${activeClient.id}/integrations`, icon: Zap },
     { title: "Alertas", url: `/client/${activeClient.id}/alerts`, icon: AlertTriangle },
