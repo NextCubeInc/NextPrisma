@@ -151,7 +151,7 @@ export function AppSidebar() {
       <div>
         <div className="flex items-center gap-4">
           <div className=" h-auto w-[39px] flex items-center justify-center">
-            <img src="src/assets/PrismaLogod.png" alt="" />
+            <img src="/src/assets/PrismaLogod.png" alt="" />
           </div>
           <div>
             <h1 className="text-lg font-bold text-sidebar-foreground text-[40px]">PrismaID</h1>

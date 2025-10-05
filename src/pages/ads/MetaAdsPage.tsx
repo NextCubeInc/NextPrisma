@@ -9,19 +9,18 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Separator } from '@/components/ui/separator'
 import { 
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-  SheetFooter,
-  SheetClose
-} from '@/components/ui/sheet'
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose
+} from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
@@ -780,33 +779,33 @@ export default function MetaAdsPage() {
                     Gerencie suas campanhas do Meta Ads. Crie campanhas com diferentes objetivos como conversões, tráfego e alcance.
                   </CardDescription>
                 </div>
-                <Sheet>
-                  <SheetTrigger asChild>
+                <Dialog>
+                  <DialogTrigger asChild>
                     <Button>
                       <Plus className="w-4 h-4 mr-2" />
                       Nova Campanha
                     </Button>
-                  </SheetTrigger>
-                  <SheetContent side="right" className="w-[90vw] sm:max-w-4xl max-h-[90vh] overflow-y-auto">
-                    <SheetHeader>
-                      <SheetTitle>Criar Nova Campanha Meta</SheetTitle>
-                      <SheetDescription>
+                  </DialogTrigger>
+                  <DialogContent className="w-[90vw] sm:max-w-4xl max-h-screen overflow-y-auto">
+                    {/*<DialogHeader>
+                      <DialogTitle>Criar Nova Campanha Meta</DialogTitle>
+                      <DialogDescription>
                         Configure sua campanha seguindo os passos abaixo
-                      </SheetDescription>
-                    </SheetHeader>
+                      </DialogDescription>
+                    </DialogHeader>*/}
 
                     {/* Stepper */}
-                    <div className="flex items-center justify-center mb-6">
-                      <div className="flex items-center space-x-4">
-                        <div className={`flex items-center justify-center w-8 h-8 rounded-full ${step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                    <div className="flex items-center justify-center mt-4">
+                      <div className="flex items-center justify-between w-full">
+                        <div className={`flex items-center justify-center w-8 h-8 rounded-full ml-1 mr-4 ${step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}> 
                           1
                         </div>
-                        <div className={`h-1 w-16 ${step >= 2 ? 'bg-blue-600' : 'bg-gray-200'}`} />
-                        <div className={`flex items-center justify-center w-8 h-8 rounded-full ${step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                        <div className={`flex-1 h-1 ${step >= 2 ? 'bg-blue-600' : 'bg-gray-200'}`} />
+                        <div className={`flex items-center justify-center w-8 h-8 rounded-full mr-4 ml-4 ${step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
                           2
                         </div>
-                        <div className={`h-1 w-16 ${step >= 3 ? 'bg-blue-600' : 'bg-gray-200'}`} />
-                        <div className={`flex items-center justify-center w-8 h-8 rounded-full ${step >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                        <div className={`flex-1 h-1 ${step >= 3 ? 'bg-blue-600' : 'bg-gray-200'}`} />
+                        <div className={`flex items-center justify-center w-8 h-8 rounded-full ml-4 ${step >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
                           3
                         </div>
                       </div>
@@ -820,7 +819,7 @@ export default function MetaAdsPage() {
                         <div>
                           <h3 className="text-lg font-semibold mb-6 flex items-center">
                             <Settings className="h-5 w-5 mr-2 text-blue-600" />
-                            Informações Básicas
+                            Criação De Campanha
                           </h3>
                           
                           {/* Card para Nome da Campanha */}
@@ -869,7 +868,7 @@ export default function MetaAdsPage() {
                               <div>
                               <label className="block text-sm font-medium mb-4">Objetivo da Campanha</label>
                               <RadioGroup value={objective} onValueChange={setObjective}>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                   {campaignObjectives.map((obj) => (
                                     <Tooltip key={obj.id}>
                                       <TooltipTrigger asChild>
@@ -1552,11 +1551,11 @@ export default function MetaAdsPage() {
                     )}
                     </div>
 
-                    <SheetFooter className="flex justify-between">
+                    <DialogFooter className="flex justify-between">
                       <div className="flex space-x-2">
-                        <SheetClose asChild>
+                        <DialogClose asChild>
                           <Button variant="outline" onClick={resetForm}>Cancelar</Button>
-                        </SheetClose>
+                        </DialogClose>
                         {step > 1 && (
                           <Button variant="outline" onClick={prevStep}>
                             Voltar
@@ -1573,19 +1572,19 @@ export default function MetaAdsPage() {
                             Próximo
                           </Button>
                         ) : (
-                          <SheetClose asChild>
+                          <DialogClose asChild>
                             <Button 
                             onClick={handleCreateCampaign}
                             disabled={!canCreateCampaign || loading}
                           >
                             {loading ? 'Criando...' : 'Criar Campanha'}
                             </Button>
-                          </SheetClose>
+                          </DialogClose>
                         )}
                       </div>
-                    </SheetFooter>
-                  </SheetContent>
-                </Sheet>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="relative flex-1 max-w-sm">
