@@ -83,22 +83,6 @@ loss
     - Creditos Extras
     - 
 
-## shadcn - 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
-## SUPABASE
-TOK sbp_cc7d6266b8448dcb5b04e1f8c91d4fc541ac2117
-/*"supabase": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@supabase/mcp-server-supabase@latest",
-        "--read-only",
-        "--project-ref=<project-ref>"
-      ],
-      "env": {
-        "SUPABASE_ACCESS_TOKEN": "sbp_cc7d6266b8448dcb5b04e1f8c91d4fc541ac2117"
-      }
-    },*/
-
 
 Google Ads (rede de pesquisa, display, YouTube, apps)
 
